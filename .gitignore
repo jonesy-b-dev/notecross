@@ -1,0 +1,7 @@
+build
+
+notecross-cli/bin
+notecross-daemon/bin
+notecross-cli/obj
+notecross-daemon/obj
+.cache

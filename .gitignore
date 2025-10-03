@@ -1,5 +1,5 @@
 build
-
+Makefile
 notecross-cli/bin
 notecross-daemon/bin
 notecross-cli/obj

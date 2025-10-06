@@ -1,0 +1,6 @@
+BreakBeforeBraces: Allman
+IndentWidth: 4
+PointerAlignment: Left
+ColumnLimit: 100
+BinPackArguments: false
+AllowAllConstructorInitializersOnNextLine: false

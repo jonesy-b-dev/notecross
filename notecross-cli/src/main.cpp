@@ -20,19 +20,48 @@ int main(int argc, char* argv[])
     }
 
     std::string option = argv[1];
-    int id = isInteger(argv[2]) ? std::stoi(argv[2]) : -1;
-    std::string taskData = (id == -1) ? argv[2] : argv[3];
 
     if (option == "--add" || option == "-a")
     {
+        if (argc < 3)
+        {
+            std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
+            return 0;
+        }
+        std::string taskData = argv[2];
         NoteCrossCLI::AddTask(taskData);
     }
     else if (option == "--update" || option == "-u")
     {
+        if (argc < 4)
+        {
+            std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
+            return 0;
+        }
+        if (!isInteger(argv[2]))
+        {
+            std::cerr << "Invalid id, id is not an interger\n";
+            return 0;
+        }
+
+        int id = std::stoi(argv[2]);
+        std::string taskData = argv[3];
         NoteCrossCLI::UpdateTask(id, taskData);
     }
     else if (option == "--remove" || option == "-r")
     {
+        if (argc < 2)
+        {
+            std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
+            return 0;
+        }
+        if (!isInteger(argv[2]))
+        {
+            std::cerr << "Invalid id, id is not an interger\n";
+            return 0;
+        }
+
+        int id = std::stoi(argv[2]);
         NoteCrossCLI::RemoveTask(id);
     }
     else if (option == "--list" || option == "-l")

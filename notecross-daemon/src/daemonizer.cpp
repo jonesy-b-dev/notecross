@@ -1,8 +1,23 @@
+#include "log.hpp"
+#include <csignal>
 #include <fcntl.h>
 #include <iostream>
 #include <sched.h>
 #include <unistd.h>
 
+void SignalHandler(int sig)
+{
+    switch (sig)
+    {
+    case SIGHUP:
+        std::cout << "Hangup signal caught\n";
+        break;
+    case SIGTERM:
+        std::cout << "Terminate signal caught\n";
+        exit(0);
+        break;
+    }
+}
 pid_t Daemonize()
 {
     // First Child process
@@ -57,9 +72,14 @@ pid_t Daemonize()
     std::cout.clear();
     std::cerr.clear();
 
-    std::cout << "Hello from log file stdout\n";
-    std::cerr << "Hello from log file stderr\n";
+    signal(SIGCHLD, SIG_IGN); /* Ignore child */
+    signal(SIGTSTP, SIG_IGN); /* Ignore tty signals */
+    signal(SIGTTOU, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
+    signal(SIGHUP, SignalHandler);  /* Catch hangup signal */
+    signal(SIGTERM, SignalHandler); /* Catch kill signal */
 
-    // Open file discriptors for logging
+    LogMessage("Daemonization complete");
+
     return secondChild;
 }

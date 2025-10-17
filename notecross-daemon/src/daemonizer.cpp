@@ -5,6 +5,8 @@
 #include <sched.h>
 #include <unistd.h>
 
+namespace Daemon
+{
 void SignalHandler(int sig)
 {
     switch (sig)
@@ -79,7 +81,8 @@ pid_t Daemonize()
     signal(SIGHUP, SignalHandler);  /* Catch hangup signal */
     signal(SIGTERM, SignalHandler); /* Catch kill signal */
 
-    LogMessage("Daemonization complete");
+    Daemon::LogMessage("Daemonization complete");
 
     return secondChild;
 }
+} // namespace Daemon

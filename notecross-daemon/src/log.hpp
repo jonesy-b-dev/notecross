@@ -3,6 +3,6 @@
 
 namespace Daemon
 {
-void LogMessage(std::string message);
-void LogError(std::string error);
+void LogMessage(std::string_view message);
+void LogError(std::string_view error);
 } // namespace Daemon

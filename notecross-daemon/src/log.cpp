@@ -4,7 +4,7 @@
 
 namespace Daemon
 {
-void LogMessage(std::string message)
+void LogMessage(std::string_view message)
 {
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
@@ -14,7 +14,7 @@ void LogMessage(std::string message)
     // journalctl-style formatting: "Jul 31 01:26:02"
     std::cout << "[" << std::put_time(&local_tm, "%b %d %H:%M:%S") << "] " << message << "\n";
 }
-void LogError(std::string error)
+void LogError(std::string_view error)
 {
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);

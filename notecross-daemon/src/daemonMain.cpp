@@ -1,4 +1,5 @@
 #include "daemonizer.hpp"
+#include "socketHandler.hpp"
 #include <iostream>
 #include <unistd.h>
 
@@ -11,5 +12,9 @@ int main()
     {
         std::cerr << "Failed to daemonize process with pid: " << getpid() << std::endl;
         exit(1);
+    }
+    Daemon::OpenSocket();
+    while (1)
+    {
     }
 }

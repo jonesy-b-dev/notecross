@@ -1,5 +1,4 @@
 #include "socketHandler.hpp"
-#include "iostream"
 #include "log.hpp"
 #include <cstring>
 #include <sys/socket.h>
@@ -64,8 +63,17 @@ int OpenSocket()
         close(socketFileDiscriptor);
         exit(1);
     }
-
-    LogMessage("Listing for connections");
     return socketFileDiscriptor;
+}
+
+void HandleConnections(int socketFileDiscriptor)
+{
+    while (1)
+    {
+        LogMessage("Listing for connections..");
+        // Blocks until a connection is active
+        int conectionFileDiscription = accept(socketFileDiscriptor, NULL, NULL);
+        LogError("Accepted socket, file discriptor = " + std::to_string(conectionFileDiscription));
+    }
 }
 } // namespace Daemon

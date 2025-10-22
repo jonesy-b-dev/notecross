@@ -1,6 +1,8 @@
 #include "socketHandler.hpp"
 #include "log.hpp"
 #include <cstring>
+#define SOCK_PATH "/tmp/NoteCrossDaemonSocket"
+#include "taskManager.hpp"
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -21,23 +23,23 @@ int OpenSocket()
         exit(1);
     }
 
-    if (strlen(SERVER_SOCK_PATH) > sizeof(serverSockAddr.sun_path) - 1)
+    if (strlen(SOCK_PATH) > sizeof(serverSockAddr.sun_path) - 1)
     {
-        LogError(std::string("Server socket path too long: ") + SERVER_SOCK_PATH);
+        LogError(std::string("Server socket path too long: ") + SOCK_PATH);
         close(socketFileDiscriptor);
         exit(1);
     }
 
     // empty sock path to avoid conflics
-    // if (remove(SERVER_SOCK_PATH) == -1 && errno != ENOENT)
+    // if (remove(SOCK_PATH) == -1 && errno != ENOENT)
     //{
-    //    LogError(std::string("Failed to remove ") + SERVER_SOCK_PATH + std::string(" ") +
+    //    LogError(std::string("Failed to remove ") + SOCK_PATH + std::string(" ") +
     //             std::to_string(errno));
     //    close(socketFileDiscriptor);
     //    exit(1);
     //}
 
-    if (unlink(SERVER_SOCK_PATH) == -1 && errno != ENOENT)
+    if (unlink(SOCK_PATH) == -1 && errno != ENOENT)
     {
         LogError(std::string("Failed to remove old socket file: ") + strerror(errno));
         close(socketFileDiscriptor);
@@ -45,7 +47,7 @@ int OpenSocket()
     }
 
     serverSockAddr.sun_family = AF_UNIX;
-    std::strncpy(serverSockAddr.sun_path, SERVER_SOCK_PATH, sizeof(serverSockAddr.sun_path) - 1);
+    std::strncpy(serverSockAddr.sun_path, SOCK_PATH, sizeof(serverSockAddr.sun_path) - 1);
 
     socklen_t len = offsetof(struct sockaddr_un, sun_path) + strlen(serverSockAddr.sun_path) + 1;
     if (bind(socketFileDiscriptor, (struct sockaddr*)&serverSockAddr, len) == -1)
@@ -55,7 +57,7 @@ int OpenSocket()
         exit(1);
     }
 
-    LogMessage("Opened socket at: " + std::string(SERVER_SOCK_PATH));
+    LogMessage("Opened socket at: " + std::string(SOCK_PATH));
 
     if (listen(socketFileDiscriptor, 5) == -1)
     {

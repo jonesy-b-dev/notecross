@@ -6,7 +6,7 @@ startproject "notecross-cli"
 -- Global settings common to all projects
 filter "system:linux"
 systemversion "latest"
-pic "On"         -- Position‑Independent Code (needed for shared libs)
+pic "On" -- Position‑Independent Code (needed for shared libs)
 
 filter "configurations:Debug"
 defines { "DEBUG" }
@@ -39,6 +39,9 @@ files {
 	"notecross-daemon/src/**.h",
 	"notecross-daemon/src/**.cpp"
 }
+includedirs {
+	"shared/**.hpp"
+}
 
 -- links { "pthread" }
 
@@ -54,6 +57,9 @@ files {
 	"notecross-cli/src/**.cpp"
 }
 
+includedirs {
+	"shared/**.hpp"
+}
 -- Link the daemon binary so the CLI can start it (optional)
 -- links { "notecross-daemon" }
 

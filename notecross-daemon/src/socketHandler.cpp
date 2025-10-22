@@ -74,8 +74,25 @@ void HandleConnections(int socketFileDiscriptor)
     {
         LogMessage("Listing for connections..");
         // Blocks until a connection is active
-        int conectionFileDiscription = accept(socketFileDiscriptor, NULL, NULL);
-        LogError("Accepted socket, file discriptor = " + std::to_string(conectionFileDiscription));
+        int client = accept(socketFileDiscriptor, NULL, NULL);
+        LogError("Accepted socket, file discriptor = " + std::to_string(client));
+
+        char buffer[128];
+        int n = read(client, buffer, sizeof(buffer) - 1);
+        buffer[n] = '\0';
+
+        if (strcmp(buffer, "ADD") == 0)
+        {
+            LogMessage("Recieved ADD request");
+            // Daemon::TaskAdd();
+        }
+        if (strcmp(buffer, "LIST") == 0)
+        {
+            LogMessage("Recieved LIST request");
+            std::string result = Daemon::TaskGetAll();
+            write(client, result.c_str(), 4);
+        }
+        close(client);
     }
 }
 } // namespace Daemon

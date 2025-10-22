@@ -13,8 +13,6 @@ int main()
         std::cerr << "Failed to daemonize process with pid: " << getpid() << std::endl;
         exit(1);
     }
-    Daemon::OpenSocket();
-    while (1)
-    {
-    }
+    int socketFileDiscriptor = Daemon::OpenSocket();
+    Daemon::HandleConnections(socketFileDiscriptor);
 }

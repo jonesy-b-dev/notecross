@@ -5,8 +5,8 @@
 namespace Daemon
 {
 std::string TaskGetAll();
-void TaskAdd(Task newTask);
-void TaskUpdate(int id, Task updatedTask);
-void TaskRemove(int id);
-void TaskSync();
+std::string TaskAdd(Task newTask);
+std::string TaskUpdate(int id, Task updatedTask);
+std::string TaskRemove(int id);
+std::string TaskSync();
 } // namespace Daemon

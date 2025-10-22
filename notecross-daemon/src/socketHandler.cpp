@@ -14,8 +14,8 @@ int OpenSocket()
     struct sockaddr_un serverSockAddr{};
 
     int socketFileDiscriptor = socket(AF_UNIX, SOCK_STREAM, 0);
-    Daemon::LogMessage(
-        "Notecross daemon socket file discriptor: " + std::to_string(socketFileDiscriptor) + "\n");
+    Daemon::LogMessage("Notecross daemon socket file discriptor: " +
+                       std::to_string(socketFileDiscriptor));
     if (socketFileDiscriptor == -1)
     {
         Daemon::LogError("Failed to open daemon server socket!");
@@ -88,11 +88,18 @@ void HandleConnections(int socketFileDiscriptor)
         }
         if (strcmp(buffer, "LIST") == 0)
         {
-            LogMessage("Recieved LIST request");
+            Daemon::LogMessage("Recieved LIST request");
             std::string result = Daemon::TaskGetAll();
+            Daemon::LogMessage("Alive before print");
+            Daemon::LogMessage(result.c_str());
+            Daemon::LogMessage("Alive before write");
             write(client, result.c_str(), 4);
+            Daemon::LogMessage("Alive after write");
         }
+
+        Daemon::LogMessage("Alive before close");
         close(client);
+        Daemon::LogMessage("Alive after close");
     }
 }
 } // namespace Daemon

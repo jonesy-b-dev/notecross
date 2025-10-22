@@ -3,34 +3,56 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
-#include <stdexcept>
 
-#define TASKPATH "~/Notecross/tasks.json"
+#define TASKDIR "~/.notecross/"
+
 namespace Daemon
 {
-std::string TaskGetAll()
+
+std::filesystem::path TaskFilePath()
 {
-    if (!std::filesystem::exists(TASKPATH))
-    {
-        std::string result =
-            std::string("No task file exists (yet), add a task first to create the file");
-        Daemon::LogMessage(result);
-        return result;
-    }
-
-    std::ifstream tasksFile(TASKPATH);
-
-    if (!tasksFile)
-    {
-        Daemon::LogError("Failed to open tasks.json file: " + std::string(TASKPATH));
-    }
-
-    // Read entire file into a string
-    return std::string(std::istreambuf_iterator<char>(tasksFile), std::istreambuf_iterator<char>());
+#if defined(_WIN32)
+    const char* home = std::getenv("USERPROFILE");
+#else
+    const char* home = std::getenv("HOME");
+#endif
+    return std::filesystem::path(home + std::string("/.notecross/tasks.json"));
 }
 
-void TaskAdd(Task newTask);
-void TaskUpdate(int id, Task updatedTask);
-void TaskRemove(int id);
-void TaskSync();
+int CreateTaskFile()
+{
+    if (!std::filesystem::create_directories(TaskFilePath()))
+    {
+        Daemon::LogError("Failed to create task file!");
+        return 0;
+    }
+    return 1;
+}
+
+std::string TaskGetAll()
+{
+    if (!std::filesystem::exists(TaskFilePath()))
+    {
+        if (!CreateTaskFile())
+        {
+            return "Failed to create task file!";
+        }
+    }
+
+    std::ifstream tasksFile(TaskFilePath());
+    if (!tasksFile)
+        Daemon::LogError("Failed to open tasks.json file: " + std::string(TaskFilePath()));
+
+    // Read entire file into a string
+    Daemon::LogMessage("Alive before resuly format");
+    std::string result =
+        std::string(std::istreambuf_iterator<char>(tasksFile), std::istreambuf_iterator<char>());
+    Daemon::LogMessage("Alive after resuly format");
+    return result;
+}
+
+std::string TaskAdd(Task newTask);
+std::string TaskUpdate(int id, Task updatedTask);
+std::string TaskRemove(int id);
+std::string TaskSync();
 } // namespace Daemon

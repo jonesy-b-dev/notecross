@@ -81,6 +81,7 @@ pid_t Daemonize()
     signal(SIGHUP, SignalHandler);  /* Catch hangup signal */
     signal(SIGTERM, SignalHandler); /* Catch kill signal */
 
+    std::cout << "\n\n";
     Daemon::LogMessage("Daemonization complete");
 
     return secondChild;

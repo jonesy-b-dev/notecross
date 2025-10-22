@@ -30,7 +30,7 @@ int OpenSocket()
         std::cerr << "Error connecting to the daemon socket!\n";
         exit(1);
     }
-    std::cout << "Connected to the daemon socket! \n";
+    // std::cout << "Connected to the daemon socket! \n";
     return socketFileDiscriptor;
 }
 } // namespace NoteCrossCLI

@@ -9,29 +9,32 @@
 namespace Daemon
 {
 
-std::filesystem::path TaskFilePath()
+std::filesystem::path TaskFilePath(bool withFile)
 {
 #if defined(_WIN32)
     const char* home = std::getenv("USERPROFILE");
 #else
     const char* home = std::getenv("HOME");
 #endif
-    return std::filesystem::path(home + std::string("/.notecross/tasks.json"));
+
+    return withFile ? std::filesystem::path(home + std::string("/.notecross/tasks.json"))
+                    : std::filesystem::path(home + std::string("/.notecross/"));
 }
 
 int CreateTaskFile()
 {
-    if (!std::filesystem::create_directories(TaskFilePath()))
+    if (!std::filesystem::create_directories(TaskFilePath(false)))
     {
         Daemon::LogError("Failed to create task file!");
         return 0;
     }
+    std::ofstream(TaskFilePath(true));
     return 1;
 }
 
 std::string TaskGetAll()
 {
-    if (!std::filesystem::exists(TaskFilePath()))
+    if (!std::filesystem::exists(TaskFilePath(true)))
     {
         if (!CreateTaskFile())
         {
@@ -39,9 +42,9 @@ std::string TaskGetAll()
         }
     }
 
-    std::ifstream tasksFile(TaskFilePath());
+    std::ifstream tasksFile(TaskFilePath(true));
     if (!tasksFile)
-        Daemon::LogError("Failed to open tasks.json file: " + std::string(TaskFilePath()));
+        Daemon::LogError("Failed to open tasks.json file: " + std::string(TaskFilePath(true)));
 
     // Read entire file into a string
     Daemon::LogMessage("Alive before resuly format");

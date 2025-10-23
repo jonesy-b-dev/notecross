@@ -88,13 +88,8 @@ void HandleConnections(int socketFileDiscriptor)
         }
         if (strcmp(buffer, "LIST") == 0)
         {
-            Daemon::LogMessage("Recieved LIST request");
             std::string result = Daemon::TaskGetAll();
-            Daemon::LogMessage("Alive before print");
-            Daemon::LogMessage(result.c_str());
-            Daemon::LogMessage("Alive before write");
-            write(client, result.c_str(), 4);
-            Daemon::LogMessage("Alive after write");
+            write(client, result.c_str(), result.size());
         }
 
         Daemon::LogMessage("Alive before close");

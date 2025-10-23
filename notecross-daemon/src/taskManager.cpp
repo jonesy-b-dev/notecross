@@ -47,10 +47,8 @@ std::string TaskGetAll()
         Daemon::LogError("Failed to open tasks.json file: " + std::string(TaskFilePath(true)));
 
     // Read entire file into a string
-    Daemon::LogMessage("Alive before resuly format");
     std::string result =
         std::string(std::istreambuf_iterator<char>(tasksFile), std::istreambuf_iterator<char>());
-    Daemon::LogMessage("Alive after resuly format");
     return result;
 }
 

@@ -106,7 +106,7 @@ void HandleConnections(int socketFileDiscriptor)
         }
         if (strcmp(option.c_str(), "LIST") == 0)
         {
-            std::string result = Daemon::TaskGetAll();
+            std::string result = Daemon::TaskGetAllFormatted();
             write(client, result.c_str(), result.size());
         }
         close(client);

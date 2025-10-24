@@ -19,7 +19,7 @@ void ListTask()
     int n = read(fileDiscriptor, response, sizeof(response) - 1);
     response[n] = '\0';
 
-    std::cout << "--Current tasks--\n" << response << std::endl;
+    std::cout << "== Current tasks ==\n" << response << std::endl;
 
     close(fileDiscriptor);
 }

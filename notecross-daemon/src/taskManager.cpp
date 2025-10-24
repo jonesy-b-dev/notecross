@@ -23,6 +23,34 @@ std::string TaskGetAll()
     return result;
 }
 
+std::string TaskGetAllFormatted()
+{
+    std::ifstream tasksFile = OpenTaskFileRead();
+    if (!tasksFile.is_open())
+        return "Failed to openfile, check /tmp/notecross.log for more details";
+
+    json taskData = json::parse(tasksFile);
+    tasksFile.close();
+
+    if (!taskData.contains("tasks") || !taskData["tasks"].is_array())
+        return "No tasks found.";
+
+    std::ostringstream output;
+
+    int count = 0;
+    for (const auto& task : taskData["tasks"])
+    {
+        ++count;
+        int id = task.value("id", 0);
+        std::string desc = task.value("task", "<no description>");
+        output << std::setw(2) << id << ". " << desc << "\n";
+    }
+
+    if (count == 0)
+        return "No tasks available.";
+
+    return output.str();
+}
 std::string TaskAdd(std::string newTask)
 {
     std::ifstream tasksFile = OpenTaskFileRead();
@@ -49,6 +77,7 @@ std::string TaskAdd(std::string newTask)
     Daemon::LogMessage("Added new task: " + newTask);
     return "Added new task.";
 }
+
 std::string TaskUpdate(int id, Task updatedTask);
 std::string TaskRemove(int id);
 std::string TaskSync();

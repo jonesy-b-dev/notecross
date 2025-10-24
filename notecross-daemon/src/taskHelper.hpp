@@ -5,5 +5,6 @@ namespace Daemon
 {
 std::filesystem::path TaskFilePath(bool withFile);
 int CreateTaskFile();
-std::ifstream OpenTaskFile();
+std::ifstream OpenTaskFileRead();
+std::ofstream OpenTaskFileWrite();
 } // namespace Daemon

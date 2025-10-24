@@ -81,20 +81,35 @@ void HandleConnections(int socketFileDiscriptor)
         int n = read(client, buffer, sizeof(buffer) - 1);
         buffer[n] = '\0';
 
-        if (strcmp(buffer, "ADD") == 0)
+        std::string strBuffer = buffer;
+        std::string data;
+        std::string option;
+        size_t pipePos = strBuffer.find("|");
+
+        if (pipePos == std::string::npos)
+        {
+            option = strBuffer;
+        }
+        else
+        {
+            option = strBuffer.substr(0, pipePos);
+            data = strBuffer.substr(pipePos + 1, strBuffer.length());
+        }
+
+        Daemon::LogMessage(option + " SEPERATOR " + data);
+
+        if (strcmp(option.c_str(), "ADD") == 0)
         {
             LogMessage("Recieved ADD request");
-            // Daemon::TaskAdd();
+            std::string result = Daemon::TaskAdd(data);
+            write(client, result.c_str(), result.size());
         }
-        if (strcmp(buffer, "LIST") == 0)
+        if (strcmp(option.c_str(), "LIST") == 0)
         {
             std::string result = Daemon::TaskGetAll();
             write(client, result.c_str(), result.size());
         }
-
-        Daemon::LogMessage("Alive before close");
         close(client);
-        Daemon::LogMessage("Alive after close");
     }
 }
 } // namespace Daemon

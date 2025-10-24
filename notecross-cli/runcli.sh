@@ -2,8 +2,7 @@ rm ./Makefile
 
 premake5 --file=../premake5.lua gmake
 
-
-make clean
+#make clean
 
 if ! bear -- make config=debug; then
     echo "Compilation failed stopping...."

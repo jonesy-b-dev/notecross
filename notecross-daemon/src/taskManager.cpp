@@ -1,36 +1,53 @@
 #include "Task.h"
+#include "json.hpp"
 #include "log.hpp"
-#include <filesystem>
+#include "taskHelper.hpp"
 #include <fstream>
 #include <iterator>
-#include "taskHelper.hpp"
 
 #define TASKDIR "~/.notecross/"
+
+using json = nlohmann::json;
 
 namespace Daemon
 {
 std::string TaskGetAll()
 {
-	std::ifstream tasksFile = OpenTaskFile();
-	if(!tasksFile.is_open())
-	{
-		return "Failed to openfile, check /tmp/notecross.log for more details";
-	}
+    std::ifstream tasksFile = OpenTaskFileRead();
+    if (!tasksFile.is_open())
+        return "Failed to openfile, check /tmp/notecross.log for more details";
+
     // Read entire file into a string
     std::string result =
         std::string(std::istreambuf_iterator<char>(tasksFile), std::istreambuf_iterator<char>());
     return result;
 }
 
-std::string TaskAdd(Task newTask)
+std::string TaskAdd(std::string newTask)
 {
-    if (!std::filesystem::exists(TaskFilePath(true)))
-        if (!CreateTaskFile())
-            return "Failed to create task file!";
+    std::ifstream tasksFile = OpenTaskFileRead();
+    if (!tasksFile.is_open())
+        return "Failed to open file for read, check /tmp/notecross.log for more details";
 
-    std::ifstream tasksFile(TaskFilePath(true));
-    if (!tasksFile)
-        Daemon::LogError("Failed to open tasks.json file: " + std::string(TaskFilePath(true)));
+    json taskData = json::parse(tasksFile);
+    tasksFile.close();
+
+    int nextId = taskData["tasks"].size() + 1;
+    Daemon::LogMessage(std::to_string(nextId));
+
+    json newTaskJson = {{"id", nextId}, {"task", newTask}};
+
+    taskData["tasks"].push_back(newTaskJson);
+
+    std::ofstream tasksFileWrite = OpenTaskFileWrite();
+    if (!tasksFileWrite.is_open())
+        return "Failed to openfile, check /tmp/notecross.log for more details";
+    tasksFileWrite << taskData.dump(4);
+
+    tasksFile.close();
+
+    Daemon::LogMessage("Added new task: " + newTask);
+    return "Added new task.";
 }
 std::string TaskUpdate(int id, Task updatedTask);
 std::string TaskRemove(int id);

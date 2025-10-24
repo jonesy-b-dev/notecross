@@ -32,8 +32,14 @@ void AddTask(std::string newTask)
     if (fileDiscriptor == -1)
         std::cerr << "Failed to open socket to NoteCross daemon.";
 
-    std::string msg = "ADD";
+    std::string msg = std::string("ADD") + "|" + newTask;
     write(fileDiscriptor, msg.c_str(), msg.size());
+
+    char response[256];
+    int n = read(fileDiscriptor, response, sizeof(response) - 1);
+    response[n] = '\0';
+
+    std::cout << response << std::endl;
 
     close(fileDiscriptor);
 }

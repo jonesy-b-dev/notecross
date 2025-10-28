@@ -1,6 +1,7 @@
 #include "socketHandler.hpp"
 #include "log.hpp"
 #include <cstring>
+#include <stdexcept>
 #define SOCK_PATH "/tmp/NoteCrossDaemonSocket"
 #include "taskManager.hpp"
 #include <sys/socket.h>
@@ -107,6 +108,31 @@ void HandleConnections(int socketFileDiscriptor)
         if (strcmp(option.c_str(), "LIST") == 0)
         {
             std::string result = Daemon::TaskGetAllFormatted();
+            write(client, result.c_str(), result.size());
+        }
+        if (strcmp(option.c_str(), "REMOVE") == 0)
+        {
+			Daemon::LogMessage("Remove data: " + data);
+            int id;
+            try
+            {
+                id = std::stoi(data);
+            }
+            catch (const std::invalid_argument& e)
+            {
+				Daemon::LogError("Invalid input: not a number");
+				std::string result = "Failed to convert number to int, got std::invalid_argument";
+				write(client, result.c_str(), result.size());
+				continue;
+            }
+            catch (const std::out_of_range& e)
+            {
+				Daemon::LogError("Number out of range for int");
+				std::string result = "Failed to convert number to int, got std::out_of_range";
+				write(client, result.c_str(), result.size());
+				continue;
+            }
+            std::string result = Daemon::TaskRemove(id);
             write(client, result.c_str(), result.size());
         }
         close(client);

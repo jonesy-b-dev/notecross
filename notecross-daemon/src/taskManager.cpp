@@ -2,6 +2,7 @@
 #include "json.hpp"
 #include "log.hpp"
 #include "taskHelper.hpp"
+#include <algorithm>
 #include <fstream>
 // #include <glib-2.0/glib.h">
 #include <iterator>
@@ -102,6 +103,36 @@ std::string TaskRemove(int id)
 
     json taskData = json::parse(tasksFile);
     tasksFile.close();
+
+    json& tasks = taskData["tasks"];
+    auto newEnd =
+        std::remove_if(tasks.begin(),
+                       tasks.end(),
+                       [id](const json& task) { return task.contains("id") && task["id"] == id; });
+
+    tasks.erase(newEnd, tasks.end());
+
+    std::ofstream tasksFileWrite = OpenTaskFileWrite();
+    if (!tasksFileWrite.is_open())
+        return "Failed to openfile, check /tmp/notecross.log for more details";
+    tasksFileWrite << taskData.dump(4);
+
+    tasksFile.close();
+
+    Daemon::LogMessage("Removed task with id: " + std::to_string(id));
+
+    // NOTIFICATION
+    notify_init("Task Removed");
+    std::string message = "Removed task with id: " + std::to_string(id);
+    NotifyNotification* n = notify_notification_new(message.c_str(), " ", 0);
+    notify_notification_set_timeout(n, 5000);
+
+    if (!notify_notification_show(n, 0))
+    {
+        Daemon::LogError("Failed to show notification");
+        return "Added new task but failed to show notification";
+    }
+    return "Removed task with id: " + std::to_string(id);
 }
 std::string TaskSync();
 } // namespace Daemon

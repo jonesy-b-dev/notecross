@@ -52,7 +52,7 @@ void UpdateTask(int id, std::string updatedTask)
     if (fileDiscriptor == -1)
         std::cerr << "Failed to open socket to NoteCross daemon.";
 
-    std::string msg = "UPDATE";
+    std::string msg = std::string("UPDATE") + "|" + updatedTask;
     write(fileDiscriptor, msg.c_str(), msg.size());
 
     close(fileDiscriptor);
@@ -66,7 +66,7 @@ void RemoveTask(int id)
     if (fileDiscriptor == -1)
         std::cerr << "Failed to open socket to NoteCross daemon.";
 
-    std::string msg = "REMOVE";
+    std::string msg = std::string("REMOVE") + "|" + std::to_string(id);
     write(fileDiscriptor, msg.c_str(), msg.size());
 
     close(fileDiscriptor);

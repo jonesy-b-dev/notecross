@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
         }
         if (!isInteger(argv[2]))
         {
-            std::cerr << "Invalid id, id is not an interger\n";
+            std::cerr << "Invalid id, " << argv[2] << "is not an interger\n";
             return 0;
         }
 

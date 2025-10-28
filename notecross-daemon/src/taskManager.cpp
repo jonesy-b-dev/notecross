@@ -3,7 +3,9 @@
 #include "log.hpp"
 #include "taskHelper.hpp"
 #include <fstream>
+// #include <glib-2.0/glib.h">
 #include <iterator>
+#include <libnotify/notify.h>
 
 #define TASKDIR "~/.notecross/"
 
@@ -51,6 +53,7 @@ std::string TaskGetAllFormatted()
 
     return output.str();
 }
+
 std::string TaskAdd(std::string newTask)
 {
     std::ifstream tasksFile = OpenTaskFileRead();
@@ -75,10 +78,30 @@ std::string TaskAdd(std::string newTask)
     tasksFile.close();
 
     Daemon::LogMessage("Added new task: " + newTask);
+
+    // NOTIFICATION
+    notify_init("Task Added");
+    NotifyNotification* n = notify_notification_new(newTask.c_str(), " ", 0);
+    notify_notification_set_timeout(n, 5000); // 5 seconds
+
+    if (!notify_notification_show(n, 0))
+    {
+        Daemon::LogError("Failed to show notification");
+        return "Added new task but failed to show notification";
+    }
+
     return "Added new task.";
 }
 
 std::string TaskUpdate(int id, Task updatedTask);
-std::string TaskRemove(int id);
+std::string TaskRemove(int id)
+{
+    std::ifstream tasksFile = OpenTaskFileRead();
+    if (!tasksFile.is_open())
+        return "Failed to open file for read, check /tmp/notecross.log for more details";
+
+    json taskData = json::parse(tasksFile);
+    tasksFile.close();
+}
 std::string TaskSync();
 } // namespace Daemon

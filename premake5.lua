@@ -43,7 +43,9 @@ includedirs {
 	"shared/**.hpp"
 }
 
--- links { "pthread" }
+filter "system:linux"
+buildoptions { "`pkg-config --cflags libnotify`" }
+linkoptions { "`pkg-config --libs libnotify`" }
 
 --------------------------------------------------------------------
 -- notecross‑cli

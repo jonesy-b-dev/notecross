@@ -24,7 +24,7 @@ premake5 gmake2
 The daemon should now be running in the background, daemon logs can be found in `/tmp/notecross.log`
 
 **To use the cli tool from everywhere**
-* run `sudo cp notecross-cli/bin/Debug/notecross-cli /usr/local/bin/`
+* run `sudo cp notecross-cli/bin/Debug/notecross /usr/local/bin/`
 
 ## How To use
 `notecross {option}`

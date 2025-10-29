@@ -27,7 +27,7 @@ The daemon should now be running in the background, daemon logs can be found in 
 * run `sudo cp notecross-cli/bin/Debug/notecross-cli /usr/local/bin/`
 
 ## How To use
-`notecross-cli {option}`
+`notecross {option}`
 ### Notecross CLI options
 **--add / -a "{newTaskName}" {newTaskDue}**
 	Add a new task using the AddTask function

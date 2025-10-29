@@ -64,8 +64,9 @@ std::string TaskAdd(std::string newTask)
     json taskData = json::parse(tasksFile);
     tasksFile.close();
 
-    int nextId = taskData["tasks"].size() + 1;
-    Daemon::LogMessage(std::to_string(nextId));
+    int nextId = taskData["tasks"].back()["id"];
+    nextId++;
+    Daemon::LogMessage("Next id is:" + std::to_string(nextId));
 
     json newTaskJson = {{"id", nextId}, {"task", newTask}};
 

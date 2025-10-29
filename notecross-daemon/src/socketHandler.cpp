@@ -31,15 +31,6 @@ int OpenSocket()
         exit(1);
     }
 
-    // empty sock path to avoid conflics
-    // if (remove(SOCK_PATH) == -1 && errno != ENOENT)
-    //{
-    //    LogError(std::string("Failed to remove ") + SOCK_PATH + std::string(" ") +
-    //             std::to_string(errno));
-    //    close(socketFileDiscriptor);
-    //    exit(1);
-    //}
-
     if (unlink(SOCK_PATH) == -1 && errno != ENOENT)
     {
         LogError(std::string("Failed to remove old socket file: ") + strerror(errno));

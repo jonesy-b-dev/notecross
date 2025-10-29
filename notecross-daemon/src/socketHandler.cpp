@@ -76,16 +76,28 @@ void HandleConnections(int socketFileDiscriptor)
         std::string strBuffer = buffer;
         std::string data;
         std::string option;
-        size_t pipePos = strBuffer.find("|");
+		std::string due;
 
+        size_t pipePos = strBuffer.find("|");
+        size_t dashPos = strBuffer.find("-");
         if (pipePos == std::string::npos)
         {
             option = strBuffer;
         }
         else
         {
-            option = strBuffer.substr(0, pipePos);
-            data = strBuffer.substr(pipePos + 1, strBuffer.length());
+			if (dashPos == std::string::npos)
+			{
+				option = strBuffer.substr(0, pipePos);
+				data = strBuffer.substr(pipePos + 1, strBuffer.length());
+			}
+			else
+			{
+				option = strBuffer.substr(0, pipePos);
+				data = strBuffer.substr(pipePos + 1, dashPos - 1);
+				due = strBuffer.substr(dashPos + 1, strBuffer.length());
+			}
+
         }
 
         Daemon::LogMessage(option + " SEPERATOR " + data);

@@ -23,13 +23,14 @@ int main(int argc, char* argv[])
 
     if (option == "--add" || option == "-a")
     {
-        if (argc < 3)
+        if (argc < 4)
         {
             std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
             return 0;
         }
         std::string taskData = argv[2];
-        NoteCrossCLI::AddTask(taskData);
+        std::string taskDue = argv[3];
+        NoteCrossCLI::AddTask(taskData, taskDue);
     }
     else if (option == "--update" || option == "-u")
     {

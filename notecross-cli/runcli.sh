@@ -9,4 +9,4 @@ if ! bear -- make config=debug; then
     exit 1
 fi
 
-./bin/Debug/notecross-cli
+./bin/Debug/notecross

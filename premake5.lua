@@ -50,6 +50,7 @@ linkoptions { "`pkg-config --libs libnotify`" }
 --------------------------------------------------------------------
 -- notecross‑cli
 project "notecross-cli"
+targetname "notecross"
 kind "ConsoleApp"
 location "notecross-cli"
 common_cpp_settings()

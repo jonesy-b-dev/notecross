@@ -74,7 +74,6 @@ void HandleConnections(int socketFileDiscriptor)
         buffer[n] = '\0';
 
         std::string strBuffer = buffer;
-        Daemon::LogMessage(strBuffer);
         std::string data;
         std::string option;
         std::string due;
@@ -104,11 +103,12 @@ void HandleConnections(int socketFileDiscriptor)
         if (strcmp(option.c_str(), "ADD") == 0)
         {
             LogMessage("Recieved ADD request");
-            std::string result = Daemon::TaskAdd(data);
+            std::string result = Daemon::TaskAdd(data, due);
             write(client, result.c_str(), result.size());
         }
         if (strcmp(option.c_str(), "LIST") == 0)
         {
+            LogMessage("Recieved LIST request");
             std::string result = Daemon::TaskGetAllFormatted();
             write(client, result.c_str(), result.size());
         }

@@ -55,7 +55,7 @@ std::string TaskGetAllFormatted()
     return output.str();
 }
 
-std::string TaskAdd(std::string newTask)
+std::string TaskAdd(std::string newTask, std::string taskDue)
 {
     std::ifstream tasksFile = OpenTaskFileRead();
     if (!tasksFile.is_open())
@@ -68,7 +68,12 @@ std::string TaskAdd(std::string newTask)
     nextId++;
     Daemon::LogMessage("Next id is:" + std::to_string(nextId));
 
-    json newTaskJson = {{"id", nextId}, {"task", newTask}};
+    int unixDueDate = TaskDueToUnixTime(taskDue);
+    if (unixDueDate == -1)
+    {
+        return "Failed to parse due date, check GitHub for correct format";
+    }
+    json newTaskJson = {{"id", nextId}, {"task", newTask}, {"due date", taskDue}};
 
     taskData["tasks"].push_back(newTaskJson);
 

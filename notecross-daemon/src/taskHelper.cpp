@@ -1,6 +1,7 @@
 #include "taskHelper.hpp"
 #include "json.hpp"
 #include "log.hpp"
+#include <chrono>
 #include <fstream>
 
 using json = nlohmann::json;
@@ -76,5 +77,40 @@ std::ofstream OpenTaskFileWrite()
         Daemon::LogError("Failed to open tasks.json file: " + std::string(TaskFilePath(true)));
 
     return tasksFile;
+}
+
+int TaskDueToUnixTime(std::string taskDue)
+{
+    size_t sizeCharPos = taskDue.find_first_not_of("0123456789");
+    if (sizeCharPos == std::string::npos)
+    {
+        return -1;
+    }
+    std::string amountStr = taskDue.substr(0, sizeCharPos);
+    std::string sizeStr = taskDue.substr(sizeCharPos, 1);
+
+    Daemon::LogMessage("amount: " + amountStr + " size: " + sizeStr);
+
+    int amount;
+    try
+    {
+        amount = std::stoi(amountStr);
+    }
+    catch (const std::invalid_argument& e)
+    {
+        Daemon::LogError("Invalid due input: not a number");
+        return -1;
+    }
+    catch (const std::out_of_range& e)
+    {
+        Daemon::LogError("Due number out of range for int");
+        return -1;
+    }
+
+    std::chrono::time_point now = std::chrono::system_clock::now();
+    std::chrono::duration duration = now.time_since_epoch();
+    auto epoch_time = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+    Daemon::LogMessage("Current Unix timestamp: " + std::to_string(epoch_time));
+    return 1;
 }
 } // namespace Daemon

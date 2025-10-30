@@ -74,9 +74,10 @@ void HandleConnections(int socketFileDiscriptor)
         buffer[n] = '\0';
 
         std::string strBuffer = buffer;
+        Daemon::LogMessage(strBuffer);
         std::string data;
         std::string option;
-		std::string due;
+        std::string due;
 
         size_t pipePos = strBuffer.find("|");
         size_t dashPos = strBuffer.find("-");
@@ -86,21 +87,19 @@ void HandleConnections(int socketFileDiscriptor)
         }
         else
         {
-			if (dashPos == std::string::npos)
-			{
-				option = strBuffer.substr(0, pipePos);
-				data = strBuffer.substr(pipePos + 1, strBuffer.length());
-			}
-			else
-			{
-				option = strBuffer.substr(0, pipePos);
-				data = strBuffer.substr(pipePos + 1, dashPos - 1);
-				due = strBuffer.substr(dashPos + 1, strBuffer.length());
-			}
-
+            option = strBuffer.substr(0, pipePos);
+            if (dashPos == std::string::npos)
+            {
+                data = strBuffer.substr(pipePos + 1, strBuffer.length());
+            }
+            else
+            {
+                data = strBuffer.substr(pipePos + 1, dashPos - pipePos - 1);
+                due = strBuffer.substr(dashPos + 1, strBuffer.length());
+            }
         }
 
-        Daemon::LogMessage(option + " SEPERATOR " + data);
+        Daemon::LogMessage(option + " | " + data + " - " + due);
 
         if (strcmp(option.c_str(), "ADD") == 0)
         {
@@ -115,7 +114,7 @@ void HandleConnections(int socketFileDiscriptor)
         }
         if (strcmp(option.c_str(), "REMOVE") == 0)
         {
-			Daemon::LogMessage("Remove data: " + data);
+            Daemon::LogMessage("Remove data: " + data);
             int id;
             try
             {
@@ -123,17 +122,17 @@ void HandleConnections(int socketFileDiscriptor)
             }
             catch (const std::invalid_argument& e)
             {
-				Daemon::LogError("Invalid input: not a number");
-				std::string result = "Failed to convert number to int, got std::invalid_argument";
-				write(client, result.c_str(), result.size());
-				continue;
+                Daemon::LogError("Invalid input: not a number");
+                std::string result = "Failed to convert number to int, got std::invalid_argument";
+                write(client, result.c_str(), result.size());
+                continue;
             }
             catch (const std::out_of_range& e)
             {
-				Daemon::LogError("Number out of range for int");
-				std::string result = "Failed to convert number to int, got std::out_of_range";
-				write(client, result.c_str(), result.size());
-				continue;
+                Daemon::LogError("Number out of range for int");
+                std::string result = "Failed to convert number to int, got std::out_of_range";
+                write(client, result.c_str(), result.size());
+                continue;
             }
             std::string result = Daemon::TaskRemove(id);
             write(client, result.c_str(), result.size());

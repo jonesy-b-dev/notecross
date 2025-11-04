@@ -109,8 +109,23 @@ int TaskDueToUnixTime(std::string taskDue)
 
     std::chrono::time_point now = std::chrono::system_clock::now();
     std::chrono::duration duration = now.time_since_epoch();
-    auto epoch_time = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-    Daemon::LogMessage("Current Unix timestamp: " + std::to_string(epoch_time));
-    return 1;
+    auto currentUnixTime = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+
+    Daemon::LogMessage("Current Unix timestamp: " + std::to_string(currentUnixTime));
+
+    int dueUnixTime = 0;
+    if (sizeStr == "m")
+    {
+        return currentUnixTime + amount * 60;
+    }
+    else if (sizeStr == "h")
+    {
+        return currentUnixTime + amount * 60 * 60;
+    }
+    else if (sizeStr == "d")
+    {
+        return currentUnixTime + amount * 60 * 60 * 24;
+    }
+	return -1;
 }
 } // namespace Daemon

@@ -57,23 +57,41 @@ std::string TaskGetAllFormatted()
 
 std::string TaskAdd(std::string newTask, std::string taskDue)
 {
+    Daemon::LogMessage("Adding new task....");
     std::ifstream tasksFile = OpenTaskFileRead();
     if (!tasksFile.is_open())
         return "Failed to open file for read, check /tmp/notecross.log for more details";
 
     json taskData = json::parse(tasksFile);
     tasksFile.close();
+    Daemon::LogMessage("Parsed and closed tasksFile");
 
-    int nextId = taskData["tasks"].back()["id"];
-    nextId++;
+    int nextId = 0;
+    if (!taskData.contains("tasks") || !taskData["tasks"].is_array() || taskData["tasks"].empty())
+    {
+        nextId = 1;
+    }
+    else
+    {
+        nextId = taskData["tasks"].back().value("id", 0) + 1;
+    }
     Daemon::LogMessage("Next id is:" + std::to_string(nextId));
 
     int unixDueDate = TaskDueToUnixTime(taskDue);
     if (unixDueDate == -1)
     {
-        return "Failed to parse due date, check GitHub for correct format";
+        return "Failed to parse due date, check `/tmp/notecross.log for more info and check GitHub "
+               "for correct format";
     }
-    json newTaskJson = {{"id", nextId}, {"task", newTask}, {"due date", taskDue}};
+
+    std::chrono::time_point now = std::chrono::system_clock::now();
+    std::chrono::duration duration = now.time_since_epoch();
+    auto currentUnixTime = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+
+    json newTaskJson = {{"id", nextId},
+                        {"task", newTask},
+                        {"due date", unixDueDate},
+                        {"creation date", currentUnixTime}};
 
     taskData["tasks"].push_back(newTaskJson);
 

@@ -24,7 +24,7 @@ void ListTask()
     close(fileDiscriptor);
 }
 
-void AddTask(std::string newTask)
+void AddTask(std::string newTask, std::string taskDue)
 {
     std::cout << "Adding task..\n";
     int fileDiscriptor = OpenSocket();
@@ -32,7 +32,7 @@ void AddTask(std::string newTask)
     if (fileDiscriptor == -1)
         std::cerr << "Failed to open socket to NoteCross daemon.";
 
-    std::string msg = std::string("ADD") + "|" + newTask;
+    std::string msg = std::string("ADD") + "|" + newTask + "-" + taskDue;
     write(fileDiscriptor, msg.c_str(), msg.size());
 
     char response[256];

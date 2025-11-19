@@ -2,8 +2,10 @@ build
 Makefile
 notecross-cli/bin
 notecross-daemon/bin
+notecross-shared/bin
 notecross-cli/obj
 notecross-daemon/obj
+notecross-shared/obj
 .cache
 
 compile_commands.json

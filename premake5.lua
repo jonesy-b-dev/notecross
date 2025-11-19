@@ -36,14 +36,17 @@ location "notecross-daemon"
 common_cpp_settings()
 
 files {
-	"notecross-daemon/src/**.h",
+	"notecross-daemon/src/**.hpp",
 	"notecross-daemon/src/**.cpp"
 }
 includedirs {
-	"shared/**.hpp"
+	"shared/",
+	"notecross‑shared/src/include"
 }
 
 filter "system:linux"
+libdirs { "../notecross‑shared/bin/%{cfg.buildcfg}" }
+links { "notecross-shared" }
 buildoptions { "`pkg-config --cflags libnotify`" }
 linkoptions { "`pkg-config --libs libnotify`" }
 
@@ -56,16 +59,33 @@ location "notecross-cli"
 common_cpp_settings()
 
 files {
-	"notecross-cli/src/**.h",
+	"notecross-cli/src/**.hpp",
 	"notecross-cli/src/**.cpp"
 }
 
 includedirs {
-	"shared/**.hpp"
+	"shared/"
 }
 -- Link the daemon binary so the CLI can start it (optional)
 -- links { "notecross-daemon" }
 
+
+--------------------------------------------------------------------
+-- notecross-shared
+project "notecross-shared"
+targetname "notecrossShared"
+kind "SharedLib"
+location "notecross-shared"
+common_cpp_settings()
+
+files {
+	"notecross-shared/src/**.hpp",
+	"notecross-shared/src/**.cpp"
+}
+
+filter "system:linux"
+buildoptions { "`pkg-config --cflags libnotify`" }
+linkoptions { "`pkg-config --libs libnotify`" }
 --------------------------------------------------------------------
 -- Composite solution: “all” builds everything at once
 newaction {

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace Daemon
+namespace NCShared
 {
 
 typedef struct
@@ -10,4 +10,4 @@ typedef struct
     std::string m_taskName;
 } Task;
 
-} // namespace Daemon
+} // namespace NCShared

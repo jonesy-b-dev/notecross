@@ -3,7 +3,8 @@
 #include <cstring>
 #include <stdexcept>
 #define SOCK_PATH "/tmp/NoteCrossDaemonSocket"
-#include "taskManager.hpp"
+//#include <taskManager.hpp>
+#include "../../notecross-shared/src/include/taskManager.hpp"
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -103,13 +104,13 @@ void HandleConnections(int socketFileDiscriptor)
         if (strcmp(option.c_str(), "ADD") == 0)
         {
             LogMessage("Recieved ADD request");
-            std::string result = Daemon::TaskAdd(data, due);
+            std::string result = NCShared::TaskAdd(data, due);
             write(client, result.c_str(), result.size());
         }
         if (strcmp(option.c_str(), "LIST") == 0)
         {
             LogMessage("Recieved LIST request");
-            std::string result = Daemon::TaskGetAllFormatted();
+            std::string result = NCShared::TaskGetAllFormatted();
             write(client, result.c_str(), result.size());
         }
         if (strcmp(option.c_str(), "REMOVE") == 0)
@@ -134,7 +135,7 @@ void HandleConnections(int socketFileDiscriptor)
                 write(client, result.c_str(), result.size());
                 continue;
             }
-            std::string result = Daemon::TaskRemove(id);
+            std::string result = NCShared::TaskRemove(id);
             write(client, result.c_str(), result.size());
         }
         close(client);

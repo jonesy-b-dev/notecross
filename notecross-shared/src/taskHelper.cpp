@@ -1,11 +1,11 @@
-#include "taskHelper.hpp"
+#include "include/taskHelper.hpp"
 #include "json.hpp"
 #include "log.hpp"
 #include <chrono>
 #include <fstream>
 
 using json = nlohmann::json;
-namespace Daemon
+namespace NCShared
 {
 std::filesystem::path TaskFilePath(bool withFile)
 {
@@ -21,14 +21,14 @@ std::filesystem::path TaskFilePath(bool withFile)
 
 int CreateTaskFile()
 {
-    Daemon::LogMessage("Creating tasks file");
+    NCShared::LogMessage("Creating tasks file");
     std::filesystem::create_directories(TaskFilePath(false));
 
     std::ofstream tasksFile;
     tasksFile.open(TaskFilePath(true).string(), std::ios::out | std::ios::trunc);
     if (!tasksFile.is_open())
     {
-        Daemon::LogError("Failed to open task file for initialization!");
+        NCShared::LogError("Failed to open task file for initialization!");
         return 0;
     }
 
@@ -36,10 +36,10 @@ int CreateTaskFile()
     taskData["tasks"] = json::array();
 
     std::string content = taskData.dump(4);
-    Daemon::LogMessage("JSON content: " + content);
+    NCShared::LogMessage("JSON content: " + content);
     tasksFile << content;
     tasksFile.flush(); // Force write to disk
-    Daemon::LogMessage("Initiazed task file");
+    NCShared::LogMessage("Initiazed task file");
 
     tasksFile.close();
 
@@ -51,13 +51,13 @@ std::ifstream OpenTaskFileRead()
     if (!std::filesystem::exists(TaskFilePath(true)))
         if (!CreateTaskFile())
         {
-            Daemon::LogError("Failed to create task file!");
+            NCShared::LogError("Failed to create task file!");
             return {};
         }
 
     std::ifstream tasksFile(TaskFilePath(true));
     if (!tasksFile.is_open())
-        Daemon::LogError("Failed to open tasks.json file: " + std::string(TaskFilePath(true)));
+        NCShared::LogError("Failed to open tasks.json file: " + std::string(TaskFilePath(true)));
 
     return tasksFile;
 }
@@ -68,13 +68,13 @@ std::ofstream OpenTaskFileWrite()
     if (!std::filesystem::exists(TaskFilePath(true)))
         if (!CreateTaskFile())
         {
-            Daemon::LogError("Failed to create task file!");
+            NCShared::LogError("Failed to create task file!");
             return tasksFile;
         }
 
     tasksFile.open(TaskFilePath(true));
     if (!tasksFile)
-        Daemon::LogError("Failed to open tasks.json file: " + std::string(TaskFilePath(true)));
+        NCShared::LogError("Failed to open tasks.json file: " + std::string(TaskFilePath(true)));
 
     return tasksFile;
 }
@@ -89,7 +89,7 @@ int TaskDueToUnixTime(std::string taskDue)
     std::string amountStr = taskDue.substr(0, sizeCharPos);
     std::string sizeStr = taskDue.substr(sizeCharPos, 1);
 
-    Daemon::LogMessage("amount: " + amountStr + " size: " + sizeStr);
+    NCShared::LogMessage("amount: " + amountStr + " size: " + sizeStr);
 
     int amount;
     try
@@ -98,12 +98,12 @@ int TaskDueToUnixTime(std::string taskDue)
     }
     catch (const std::invalid_argument& e)
     {
-        Daemon::LogError("Invalid due input: not a number");
+        NCShared::LogError("Invalid due input: not a number");
         return -1;
     }
     catch (const std::out_of_range& e)
     {
-        Daemon::LogError("Due number out of range for int");
+        NCShared::LogError("Due number out of range for int");
         return -1;
     }
 
@@ -111,7 +111,7 @@ int TaskDueToUnixTime(std::string taskDue)
     std::chrono::duration duration = now.time_since_epoch();
     auto currentUnixTime = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 
-    Daemon::LogMessage("Current Unix timestamp: " + std::to_string(currentUnixTime));
+    NCShared::LogMessage("Current Unix timestamp: " + std::to_string(currentUnixTime));
 
     int dueUnixTime = 0;
     if (sizeStr == "m")
@@ -126,6 +126,6 @@ int TaskDueToUnixTime(std::string taskDue)
     {
         return currentUnixTime + amount * 60 * 60 * 24;
     }
-	return -1;
+    return -1;
 }
-} // namespace Daemon
+} // namespace NCShared

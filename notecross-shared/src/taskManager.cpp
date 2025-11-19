@@ -1,7 +1,7 @@
 #include "Task.h"
 #include "json.hpp"
 #include "log.hpp"
-#include "taskHelper.hpp"
+#include "include/taskHelper.hpp"
 #include <algorithm>
 #include <fstream>
 // #include <glib-2.0/glib.h">
@@ -12,7 +12,7 @@
 
 using json = nlohmann::json;
 
-namespace Daemon
+namespace NCShared
 {
 std::string TaskGetAll()
 {
@@ -57,14 +57,14 @@ std::string TaskGetAllFormatted()
 
 std::string TaskAdd(std::string newTask, std::string taskDue)
 {
-    Daemon::LogMessage("Adding new task....");
+    NCShared::LogMessage("Adding new task....");
     std::ifstream tasksFile = OpenTaskFileRead();
     if (!tasksFile.is_open())
         return "Failed to open file for read, check /tmp/notecross.log for more details";
 
     json taskData = json::parse(tasksFile);
     tasksFile.close();
-    Daemon::LogMessage("Parsed and closed tasksFile");
+    NCShared::LogMessage("Parsed and closed tasksFile");
 
     int nextId = 0;
     if (!taskData.contains("tasks") || !taskData["tasks"].is_array() || taskData["tasks"].empty())
@@ -75,7 +75,7 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
     {
         nextId = taskData["tasks"].back().value("id", 0) + 1;
     }
-    Daemon::LogMessage("Next id is:" + std::to_string(nextId));
+    NCShared::LogMessage("Next id is:" + std::to_string(nextId));
 
     int unixDueDate = TaskDueToUnixTime(taskDue);
     if (unixDueDate == -1)
@@ -102,7 +102,7 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
 
     tasksFile.close();
 
-    Daemon::LogMessage("Added new task: " + newTask);
+    NCShared::LogMessage("Added new task: " + newTask);
 
     // NOTIFICATION
     notify_init("Task Added");
@@ -111,7 +111,7 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
 
     if (!notify_notification_show(n, 0))
     {
-        Daemon::LogError("Failed to show notification");
+        NCShared::LogError("Failed to show notification");
         return "Added new task but failed to show notification";
     }
 
@@ -143,7 +143,7 @@ std::string TaskRemove(int id)
 
     tasksFile.close();
 
-    Daemon::LogMessage("Removed task with id: " + std::to_string(id));
+    NCShared::LogMessage("Removed task with id: " + std::to_string(id));
 
     // NOTIFICATION
     notify_init("Task Removed");
@@ -153,10 +153,10 @@ std::string TaskRemove(int id)
 
     if (!notify_notification_show(n, 0))
     {
-        Daemon::LogError("Failed to show notification");
+        NCShared::LogError("Failed to show notification");
         return "Added new task but failed to show notification";
     }
     return "Removed task with id: " + std::to_string(id);
 }
 std::string TaskSync();
-} // namespace Daemon
+} // namespace NCShared

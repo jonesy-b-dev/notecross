@@ -3,24 +3,24 @@
 #include <cstring>
 #include <stdexcept>
 #define SOCK_PATH "/tmp/NoteCrossDaemonSocket"
-//#include <taskManager.hpp>
+// #include <taskManager.hpp>
 #include "../../notecross-shared/src/include/taskManager.hpp"
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
 
-namespace Daemon
+namespace NCDaemon
 {
 int OpenSocket()
 {
     struct sockaddr_un serverSockAddr{};
 
     int socketFileDiscriptor = socket(AF_UNIX, SOCK_STREAM, 0);
-    Daemon::LogMessage("Notecross daemon socket file discriptor: " +
-                       std::to_string(socketFileDiscriptor));
+    NCDaemon::LogMessage("Notecross daemon socket file discriptor: " +
+                         std::to_string(socketFileDiscriptor));
     if (socketFileDiscriptor == -1)
     {
-        Daemon::LogError("Failed to open daemon server socket!");
+        NCDaemon::LogError("Failed to open daemon server socket!");
         close(socketFileDiscriptor);
         exit(1);
     }
@@ -99,7 +99,7 @@ void HandleConnections(int socketFileDiscriptor)
             }
         }
 
-        Daemon::LogMessage(option + " | " + data + " - " + due);
+        NCDaemon::LogMessage(option + " | " + data + " - " + due);
 
         if (strcmp(option.c_str(), "ADD") == 0)
         {
@@ -115,7 +115,7 @@ void HandleConnections(int socketFileDiscriptor)
         }
         if (strcmp(option.c_str(), "REMOVE") == 0)
         {
-            Daemon::LogMessage("Remove data: " + data);
+            NCDaemon::LogMessage("Remove data: " + data);
             int id;
             try
             {
@@ -123,14 +123,14 @@ void HandleConnections(int socketFileDiscriptor)
             }
             catch (const std::invalid_argument& e)
             {
-                Daemon::LogError("Invalid input: not a number");
+                NCDaemon::LogError("Invalid input: not a number");
                 std::string result = "Failed to convert number to int, got std::invalid_argument";
                 write(client, result.c_str(), result.size());
                 continue;
             }
             catch (const std::out_of_range& e)
             {
-                Daemon::LogError("Number out of range for int");
+                NCDaemon::LogError("Number out of range for int");
                 std::string result = "Failed to convert number to int, got std::out_of_range";
                 write(client, result.c_str(), result.size());
                 continue;
@@ -141,4 +141,4 @@ void HandleConnections(int socketFileDiscriptor)
         close(client);
     }
 }
-} // namespace Daemon
+} // namespace NCDaemon

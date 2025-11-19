@@ -1,7 +1,7 @@
 #pragma once
 #include <sched.h>
 
-namespace Daemon
+namespace NCDaemon
 {
 pid_t Daemonize();
 }

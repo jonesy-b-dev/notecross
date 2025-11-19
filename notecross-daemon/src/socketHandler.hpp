@@ -1,7 +1,7 @@
 #pragma once
 
-namespace Daemon
+namespace NCDaemon
 {
 int OpenSocket();
 void HandleConnections(int socketFileDiscriptor);
-} // namespace Daemon
+} // namespace NCDaemon

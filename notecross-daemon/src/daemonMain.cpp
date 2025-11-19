@@ -6,13 +6,13 @@
 int main()
 {
     std::cout << "Starting daemon!";
-    pid_t notecrossDaemon = Daemon::Daemonize();
+    pid_t notecrossDaemon = NCDaemon::Daemonize();
 
     if (notecrossDaemon == -1)
     {
         std::cerr << "Failed to daemonize process with pid: " << getpid() << std::endl;
         exit(1);
     }
-    int socketFileDiscriptor = Daemon::OpenSocket();
-    Daemon::HandleConnections(socketFileDiscriptor);
+    int socketFileDiscriptor = NCDaemon::OpenSocket();
+    NCDaemon::HandleConnections(socketFileDiscriptor);
 }

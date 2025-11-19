@@ -5,7 +5,7 @@
 #include <sched.h>
 #include <unistd.h>
 
-namespace Daemon
+namespace NCDaemon
 {
 void SignalHandler(int sig)
 {
@@ -82,8 +82,8 @@ pid_t Daemonize()
     signal(SIGTERM, SignalHandler); /* Catch kill signal */
 
     std::cout << "\n\n";
-    Daemon::LogMessage("Daemonization complete");
+    NCDaemon::LogMessage("Daemonization complete");
 
     return secondChild;
 }
-} // namespace Daemon
+} // namespace NCDaemon

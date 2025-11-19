@@ -1,8 +1,9 @@
 #include "log.hpp"
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 
-namespace Daemon
+namespace NCDaemon
 {
 void LogMessage(std::string_view message)
 {
@@ -24,4 +25,4 @@ void LogError(std::string_view error)
     // journalctl-style formatting: "Jul 31 01:26:02"
     std::cout << "[" << std::put_time(&local_tm, "%b %d %H:%M:%S") << "] " << error << "\n";
 }
-} // namespace Daemon
+} // namespace NCDaemon

@@ -11,16 +11,6 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = Color(0xFFE6C28D),
     background = Color(0xFF302E2B)
 )
-
-    /* Other default colors to override
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-
 @Composable
 fun NotecrossTheme(
     content: @Composable () -> Unit

@@ -1,4 +1,4 @@
-package com.example.notecross.components.title
+package com.example.notecross.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -19,7 +19,8 @@ fun Title(title: String)
         horizontalArrangement = Arrangement.Center
     )
     {
-        Text( text = title,
+        Text(
+            text = title,
             color = MaterialTheme.colorScheme.primary,
             fontSize = 50.sp,
             fontFamily = SquadaOne,

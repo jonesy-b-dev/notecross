@@ -3,17 +3,12 @@ package com.example.notecross
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.notecross.ui.theme.NotecrossTheme
-import com.example.notecross.ui.theme.SquadaOne
+import com.example.notecross.components.title.Title
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,27 +26,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
-
-@Composable
-fun Title(title: String)
-{
-    Row(
-        horizontalArrangement = Arrangement.Center
-    )
-    {
-        Text( text = title,
-            color = MaterialTheme.colorScheme.primary,
-            fontSize = 50.sp,
-            fontFamily = SquadaOne,
-            modifier = Modifier
-                .padding(top = 80.dp, bottom = 30.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ShowTitle(){
-    Title("Notecross")
 }

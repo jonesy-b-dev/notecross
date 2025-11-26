@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
         }
         std::string taskData = argv[2];
         std::string taskDue = argv[3];
-        NoteCrossCLI::AddTask(taskData, taskDue);
+        NCCLI::AddTask(taskData, taskDue);
     }
     else if (option == "--update" || option == "-u")
     {
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
         int id = std::stoi(argv[2]);
         std::string taskData = argv[3];
-        NoteCrossCLI::UpdateTask(id, taskData);
+        NCCLI::UpdateTask(id, taskData);
     }
     else if (option == "--remove" || option == "-r")
     {
@@ -63,15 +63,15 @@ int main(int argc, char* argv[])
         }
 
         int id = std::stoi(argv[2]);
-        NoteCrossCLI::RemoveTask(id);
+        NCCLI::RemoveTask(id);
     }
     else if (option == "--list" || option == "-l")
     {
-        NoteCrossCLI::ListTask();
+        NCCLI::ListTask();
     }
     else if (option == "--sync" || option == "-s")
     {
-        // NoteCrossCLI::AddTask();
+        // NCCLI::AddTask();
     }
     else if (option == "--help" || option == "-h")
     {

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace NoteCrossCLI
+namespace NCCLI
 {
 	int OpenSocket();
 }

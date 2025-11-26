@@ -1,13 +1,13 @@
 #define SOCK_PATH "/tmp/NoteCrossDaemonSocket"
 #include "socketHandler.hpp"
 #include <iostream>
-#include <socketHandler.hpp>
+#include "socketHandler.hpp"
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
 
-namespace NoteCrossCLI
+namespace NCCLI
 {
 int OpenSocket()
 {
@@ -33,4 +33,4 @@ int OpenSocket()
     // std::cout << "Connected to the daemon socket! \n";
     return socketFileDiscriptor;
 }
-} // namespace NoteCrossCLI
+} // namespace NCCLI

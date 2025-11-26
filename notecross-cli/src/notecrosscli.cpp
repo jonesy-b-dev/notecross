@@ -3,11 +3,11 @@
 #include <iostream>
 #include <unistd.h>
 
-namespace NoteCrossCLI
+namespace NCCLI
 {
 void ListTask()
 {
-    int fileDiscriptor = OpenSocket();
+    int fileDiscriptor = NCCLI::OpenSocket();
 
     if (fileDiscriptor == -1)
         std::cerr << "Failed to open socket to NoteCross daemon.";
@@ -27,7 +27,7 @@ void ListTask()
 void AddTask(std::string newTask, std::string taskDue)
 {
     std::cout << "Adding task..\n";
-    int fileDiscriptor = OpenSocket();
+    int fileDiscriptor = NCCLI::OpenSocket();
 
     if (fileDiscriptor == -1)
         std::cerr << "Failed to open socket to NoteCross daemon.";
@@ -47,7 +47,7 @@ void AddTask(std::string newTask, std::string taskDue)
 void UpdateTask(int id, std::string updatedTask)
 {
     std::cout << "Update task..\n";
-    int fileDiscriptor = OpenSocket();
+    int fileDiscriptor = NCCLI::OpenSocket();
 
     if (fileDiscriptor == -1)
         std::cerr << "Failed to open socket to NoteCross daemon.";
@@ -61,7 +61,7 @@ void UpdateTask(int id, std::string updatedTask)
 void RemoveTask(int id)
 {
     std::cout << "Remove task..\n";
-    int fileDiscriptor = OpenSocket();
+    int fileDiscriptor = NCCLI::OpenSocket();
 
     if (fileDiscriptor == -1)
         std::cerr << "Failed to open socket to NoteCross daemon.";
@@ -72,4 +72,4 @@ void RemoveTask(int id)
     close(fileDiscriptor);
 }
 
-} // namespace NoteCrossCLI
+} // namespace NCCLI

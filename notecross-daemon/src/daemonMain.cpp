@@ -5,7 +5,6 @@
 
 int main()
 {
-    std::cout << "Starting daemon!";
     pid_t notecrossDaemon = NCDaemon::Daemonize();
 
     if (notecrossDaemon == -1)

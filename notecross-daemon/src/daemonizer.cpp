@@ -22,6 +22,7 @@ void SignalHandler(int sig)
 }
 pid_t Daemonize()
 {
+	std::cout << "Starting Daemonization\n";
     // First Child process
     pid_t childPid = fork();
 

@@ -9,8 +9,13 @@ private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFFECE0C8),
     secondary = Color(0xFF5E5547),
     tertiary = Color(0xFFD7B072),
-    background = Color(0xFF2C2923)
+    background = Color(0xFF2C2923),
 )
+
+object ExtraColors{
+    val green = Color(0xFFDEECC8)
+    val red = Color(0xFFECD3C8)
+}
 @Composable
 fun NotecrossTheme(
     content: @Composable () -> Unit

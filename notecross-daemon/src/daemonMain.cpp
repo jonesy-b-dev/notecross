@@ -5,6 +5,8 @@
 
 int main()
 {
+    NCDaemon::KillOtherNCDaemonProcesses();
+
     pid_t notecrossDaemon = NCDaemon::Daemonize();
 
     if (notecrossDaemon == -1)

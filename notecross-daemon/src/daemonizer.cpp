@@ -1,12 +1,39 @@
 #include "log.hpp"
 #include <csignal>
+#include <cstring>
 #include <fcntl.h>
 #include <iostream>
+#include <memory>
 #include <sched.h>
 #include <unistd.h>
 
 namespace NCDaemon
 {
+void KillOtherNCDaemonProcesses()
+{
+    std::unique_ptr<FILE, int (*)(FILE*)> pipe(popen("pidof notecross-daemon", "r"), pclose);
+
+    if (!pipe)
+    {
+        std::cerr << "popen failed\n";
+        return;
+    }
+
+    pid_t pid;
+    const pid_t self = getpid();
+
+    while (fscanf(pipe.get(), "%d", &pid) == 1)
+    {
+        if (pid == self)
+            continue;
+
+        if (::kill(pid, SIGTERM) != 0)
+        {
+            std::cerr << "kill(" << pid << ") failed: " << std::strerror(errno) << "\n";
+        }
+    }
+}
+
 void SignalHandler(int sig)
 {
     switch (sig)
@@ -22,7 +49,7 @@ void SignalHandler(int sig)
 }
 pid_t Daemonize()
 {
-	std::cout << "Starting Daemonization\n";
+    std::cout << "Starting Daemonization\n";
     // First Child process
     pid_t childPid = fork();
 

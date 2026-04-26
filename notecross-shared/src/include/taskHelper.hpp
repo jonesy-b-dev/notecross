@@ -8,4 +8,5 @@ int CreateTaskFile();
 std::ifstream OpenTaskFileRead();
 std::ofstream OpenTaskFileWrite();
 int TaskDueToUnixTime(std::string taskDue);
+std::string TaskDueToDate(int taskDue);
 } // namespace NCShared

@@ -2,6 +2,7 @@
 #include "json.hpp"
 #include "log.hpp"
 #include <chrono>
+#include <ctime>
 #include <fstream>
 
 using json = nlohmann::json;
@@ -127,5 +128,36 @@ int TaskDueToUnixTime(std::string taskDue)
         return currentUnixTime + amount * 60 * 60 * 24;
     }
     return -1;
+}
+
+std::string TaskDueToDate(int taskDue)
+{
+    time_t now = time(nullptr);
+    long diff = (long)(taskDue - now);
+
+    bool negative = diff < 0;
+    long abs_diff = negative ? -diff : diff;
+
+    long days = abs_diff / 86400;
+    long hours = (abs_diff % 86400) / 3600;
+    long minutes = (abs_diff % 3600) / 60;
+    long seconds = abs_diff % 60;
+
+    std::ostringstream oss;
+    if (negative)
+        oss << "-";
+    if (days > 0)
+        oss << days << "d ";
+    if (hours > 0)
+        oss << hours << "h ";
+    if (minutes > 0)
+        oss << minutes << "m ";
+    if (seconds > 0)
+        oss << seconds << "s";
+
+    std::string result = oss.str();
+    if (!result.empty() && result.back() == ' ')
+        result.pop_back();
+    return result;
 }
 } // namespace NCShared

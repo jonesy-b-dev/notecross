@@ -1,7 +1,7 @@
 #include "Task.h"
+#include "include/taskHelper.hpp"
 #include "json.hpp"
 #include "log.hpp"
-#include "include/taskHelper.hpp"
 #include <algorithm>
 #include <fstream>
 // #include <glib-2.0/glib.h">
@@ -35,22 +35,27 @@ std::string TaskGetAllFormatted()
     json taskData = json::parse(tasksFile);
     tasksFile.close();
 
-    if (!taskData.contains("tasks") || !taskData["tasks"].is_array())
+    if (!taskData.contains("tasks") || !taskData["tasks"].is_array() || taskData["tasks"].empty())
         return "No tasks found.";
 
-    std::ostringstream output;
-
-    int count = 0;
+    // Find longest description
+    size_t maxDesc = 0;
     for (const auto& task : taskData["tasks"])
     {
-        ++count;
-        int id = task.value("id", 0);
         std::string desc = task.value("task", "<no description>");
-        output << std::setw(2) << id << ". " << desc << "\n";
+        maxDesc = std::max(maxDesc, desc.size());
     }
 
-    if (count == 0)
-        return "No tasks available.";
+    std::ostringstream output;
+    for (const auto& task : taskData["tasks"])
+    {
+        int id = task.value("id", 0);
+        std::string desc = task.value("task", "<no description>");
+        int due = task.value("due date", 0);
+
+        output << "  " << id << ". " << std::left << std::setw(maxDesc) << desc
+               << " | Due: " << NCShared::TaskDueToDate(due) << "\n";
+    }
 
     return output.str();
 }

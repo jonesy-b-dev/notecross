@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 {
     if (argc == 1)
     {
-        std::cout << "No arguments given, `notecross help` to list posible options\n";
+        std::cout << "No arguments given, `notecross --help` to list posible options\n";
         return 0;
     }
 

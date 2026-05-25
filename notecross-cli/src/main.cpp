@@ -23,13 +23,18 @@ int main(int argc, char* argv[])
 
     if (option == "--add" || option == "-a")
     {
-        if (argc < 4)
+        std::string taskDue = "";
+
+        if (argc < 3)
         {
             std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
             return 0;
         }
+        if (argc == 4) // Due date was given
+        {
+            taskDue = argv[3];
+        }
         std::string taskData = argv[2];
-        std::string taskDue = argv[3];
         NCCLI::AddTask(taskData, taskDue);
     }
     else if (option == "--update" || option == "-u")

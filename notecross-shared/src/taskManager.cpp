@@ -51,11 +51,24 @@ std::string TaskGetAllFormatted()
     {
         int id = task.value("id", 0);
         std::string desc = task.value("task", "<no description>");
-        int due = task.value("due date", 0);
+        std::string due = "";
 
-        output << "  " << id << ". " << std::left << std::setw(maxDesc) << desc
-               << " | Due: " << NCShared::TaskDueToDate(due) << "\n";
+        const auto& dueField = task["due date"];
+
+        if (dueField.is_number())
+        {
+            due = NCShared::TaskDueToDate(dueField.get<int>());
+        }
+        else if (dueField.is_string())
+        {
+            due = dueField.get<std::string>(); // or parse/convert it
+        }
+
+        output << "  " << id << ". " << std::left << std::setw(maxDesc) << desc << " | Due: " << due
+               << "\n";
     }
+
+    NCShared::LogMessage("Listed all tasks.");
 
     return output.str();
 }
@@ -63,6 +76,7 @@ std::string TaskGetAllFormatted()
 std::string TaskAdd(std::string newTask, std::string taskDue)
 {
     NCShared::LogMessage("Adding new task....");
+
     std::ifstream tasksFile = OpenTaskFileRead();
     if (!tasksFile.is_open())
         return "Failed to open file for read, check /tmp/notecross.log for more details";
@@ -72,31 +86,40 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
     NCShared::LogMessage("Parsed and closed tasksFile");
 
     int nextId = 0;
-    if (!taskData.contains("tasks") || !taskData["tasks"].is_array() || taskData["tasks"].empty())
-    {
-        nextId = 1;
-    }
-    else
-    {
-        nextId = taskData["tasks"].back().value("id", 0) + 1;
-    }
+    nextId =
+        !taskData.contains("tasks") || !taskData["tasks"].is_array() || taskData["tasks"].empty()
+            ? 1
+            : taskData["tasks"].back().value("id", 0) + 1;
     NCShared::LogMessage("Next id is:" + std::to_string(nextId));
 
-    int unixDueDate = TaskDueToUnixTime(taskDue);
-    if (unixDueDate == -1)
-    {
-        return "Failed to parse due date, check `/tmp/notecross.log for more info and check GitHub "
-               "for correct format";
-    }
+    json newTaskJson;
 
     std::chrono::time_point now = std::chrono::system_clock::now();
     std::chrono::duration duration = now.time_since_epoch();
     auto currentUnixTime = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 
-    json newTaskJson = {{"id", nextId},
-                        {"task", newTask},
-                        {"due date", unixDueDate},
-                        {"creation date", currentUnixTime}};
+    if (taskDue.empty())
+    {
+        newTaskJson = {{"id", nextId},
+                       {"task", newTask},
+                       {"due date", "No due set"},
+                       {"creation date", currentUnixTime}};
+    }
+    else
+    {
+        int unixDueDate = TaskDueToUnixTime(taskDue);
+
+        if (unixDueDate == -1)
+        {
+            return "Failed to parse due date, check `/tmp/notecross.log for more info and check "
+                   "GitHub for correct format";
+        }
+
+        newTaskJson = {{"id", nextId},
+                       {"task", newTask},
+                       {"due date", unixDueDate},
+                       {"creation date", currentUnixTime}};
+    }
 
     taskData["tasks"].push_back(newTaskJson);
 

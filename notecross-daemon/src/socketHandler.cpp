@@ -65,7 +65,7 @@ void HandleConnections(int socketFileDiscriptor)
 {
     while (1)
     {
-        LogMessage("Listing for connections..");
+        LogMessage("Listening for connections..");
         // Blocks until a connection is active
         int client = accept(socketFileDiscriptor, NULL, NULL);
         LogError("Accepted socket, file discriptor = " + std::to_string(client));

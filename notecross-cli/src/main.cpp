@@ -58,7 +58,8 @@ int main(int argc, char* argv[])
 
         int id = std::stoi(argv[2]);
         std::string taskData = argv[3];
-        NCCLI::UpdateTask(id, taskData);
+
+		//std::cout << NCShared::TaskUpdate(taskData, taskDue);
     }
     else if (option == "--remove" || option == "-r")
     {
@@ -74,11 +75,14 @@ int main(int argc, char* argv[])
         }
 
         int id = std::stoi(argv[2]);
-        NCCLI::RemoveTask(id);
+
+		NCShared::LogFileMessage("Removing task with id: " + std::to_string(id));
+		std::cout << NCShared::TaskRemove(id);
     }
     else if (option == "--list" || option == "-l")
     {
         NCCLI::ListTask();
+		std::cout << NCShared::TaskGetAllFormatted();
     }
     else if (option == "--sync" || option == "-s")
     {

@@ -50,13 +50,13 @@ std::string FormatMessge(std::string_view message, bool isError)
     // journalctl-style formatting: "Jul 31 01:26:02"
     if (isError)
     {
-        completeMessgage << "[" << std::put_time(&local_tm, "%b %d %H:%M:%S") << "] [Error!]"
+        completeMessgage << "[" << std::put_time(&local_tm, "%b %d %H:%M:%S") << "] [Error!] "
                          << message << "\n";
         return completeMessgage.str();
     }
     else
     {
-        completeMessgage << "[" << std::put_time(&local_tm, "%b %d %H:%M:%S") << "] [Message]"
+        completeMessgage << "[" << std::put_time(&local_tm, "%b %d %H:%M:%S") << "] [Message] "
                          << message << "\n";
         return completeMessgage.str();
     }

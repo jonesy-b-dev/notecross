@@ -1,7 +1,7 @@
 #include "Task.h"
 #include "include/taskHelper.hpp"
 #include "json.hpp"
-#include "log.hpp"
+#include "include/log.hpp"
 #include <algorithm>
 #include <fstream>
 // #include <glib-2.0/glib.h">
@@ -47,6 +47,8 @@ std::string TaskGetAllFormatted()
     }
 
     std::ostringstream output;
+
+    output << "== Current tasks ==\n";
     for (const auto& task : taskData["tasks"])
     {
         int id = task.value("id", 0);
@@ -68,14 +70,14 @@ std::string TaskGetAllFormatted()
                << "\n";
     }
 
-    NCShared::LogMessage("Listed all tasks.");
+    NCShared::LogFileMessage("Listed all tasks.");
 
     return output.str();
 }
 
 std::string TaskAdd(std::string newTask, std::string taskDue)
 {
-    NCShared::LogMessage("Adding new task....");
+    NCShared::LogFileMessage("Adding new task....");
 
     std::ifstream tasksFile = OpenTaskFileRead();
     if (!tasksFile.is_open())
@@ -83,14 +85,14 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
 
     json taskData = json::parse(tasksFile);
     tasksFile.close();
-    NCShared::LogMessage("Parsed and closed tasksFile");
+    NCShared::LogFileMessage("Parsed and closed tasksFile");
 
     int nextId = 0;
     nextId =
         !taskData.contains("tasks") || !taskData["tasks"].is_array() || taskData["tasks"].empty()
             ? 1
             : taskData["tasks"].back().value("id", 0) + 1;
-    NCShared::LogMessage("Next id is:" + std::to_string(nextId));
+    NCShared::LogFileMessage("Next id is:" + std::to_string(nextId));
 
     json newTaskJson;
 
@@ -130,7 +132,7 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
 
     tasksFile.close();
 
-    NCShared::LogMessage("Added new task: " + newTask);
+    NCShared::LogFileMessage("Added new task: " + newTask);
 
     // NOTIFICATION
     notify_init("Task Added");
@@ -139,7 +141,7 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
 
     if (!notify_notification_show(n, 0))
     {
-        NCShared::LogError("Failed to show notification");
+        NCShared::LogFileError("Failed to show notification");
         return "Added new task but failed to show notification";
     }
 
@@ -171,7 +173,7 @@ std::string TaskRemove(int id)
 
     tasksFile.close();
 
-    NCShared::LogMessage("Removed task with id: " + std::to_string(id));
+    NCShared::LogFileMessage("Removed task with id: " + std::to_string(id));
 
     // NOTIFICATION
     notify_init("Task Removed");
@@ -181,7 +183,7 @@ std::string TaskRemove(int id)
 
     if (!notify_notification_show(n, 0))
     {
-        NCShared::LogError("Failed to show notification");
+        NCShared::LogFileError("Failed to show notification");
         return "Added new task but failed to show notification";
     }
     return "Removed task with id: " + std::to_string(id);

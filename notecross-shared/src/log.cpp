@@ -1,28 +1,76 @@
-#include "log.hpp"
+#include "include/log.hpp"
 #include <chrono>
-#include <iostream>
+#include <filesystem>
+#include <fstream>
 #include <iomanip>
+#include <iostream>
 
 namespace NCShared
 {
-void LogMessage(std::string_view message)
+std::string FormatMessge(std::string_view message, bool isError);
+std::filesystem::path LogFilePath();
+
+void LogConsoleMessage(std::string_view message)
+{
+	std::cout << FormatMessge(message, false);
+}
+
+void LogConsoleError(std::string_view error)
+{
+	std::cout << FormatMessge(error, true);
+}
+
+void LogFileMessage(std::string_view message)
+{
+    std::ofstream logFile(LogFilePath());
+
+    logFile << FormatMessge(message, false);
+
+	logFile.close();
+}
+
+void LogFileError(std::string_view error)
+{
+    std::ofstream logFile(LogFilePath());
+
+    logFile << FormatMessge(error, false);
+
+	logFile.close();
+}
+
+std::string FormatMessge(std::string_view message, bool isError)
 {
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
 
     std::tm local_tm = *std::localtime(&t); // convert to local time
 
+    std::ostringstream completeMessgage;
+
     // journalctl-style formatting: "Jul 31 01:26:02"
-    std::cout << "[" << std::put_time(&local_tm, "%b %d %H:%M:%S") << "] " << message << "\n";
+    if (isError)
+    {
+        completeMessgage << "[" << std::put_time(&local_tm, "%b %d %H:%M:%S") << "] [Error!]"
+                         << message << "\n";
+        return completeMessgage.str();
+    }
+    else
+    {
+        completeMessgage << "[" << std::put_time(&local_tm, "%b %d %H:%M:%S") << "] [Message]"
+                         << message << "\n";
+        return completeMessgage.str();
+    }
 }
-void LogError(std::string_view error)
+
+std::filesystem::path LogFilePath()
 {
-    auto now = std::chrono::system_clock::now();
-    std::time_t t = std::chrono::system_clock::to_time_t(now);
+#if defined(_WIN32)
+    const char* home = std::getenv("USERPROFILE");
+#else
+    const char* home = std::getenv("HOME");
+#endif
 
-    std::tm local_tm = *std::localtime(&t); // convert to local time
-
-    // journalctl-style formatting: "Jul 31 01:26:02"
-    std::cout << "[" << std::put_time(&local_tm, "%b %d %H:%M:%S") << "] " << error << "\n";
+    return std::filesystem::path(home + std::string("/.notecross/notecross.log"));
 }
+
 } // namespace NCShared

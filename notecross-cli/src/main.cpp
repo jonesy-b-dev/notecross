@@ -1,5 +1,4 @@
 #include "./helpers/extras.hpp"
-#include "notecrosscli.hpp"
 #include <iostream>
 #include <taskManager.hpp>
 #include <log.hpp>
@@ -60,9 +59,10 @@ int main(int argc, char* argv[])
             return 0;
         }
 
-        int id = std::stoi(argv[2]);
+        int taskId = std::stoi(argv[2]);
         std::string taskData = argv[3];
 
+		NCShared::LogFileMessage("Data given to shared module: Task Data: " + taskData + " Task Id: " + std::to_string(taskId));
 		//std::cout << NCShared::TaskUpdate(taskData, taskDue);
     }
     else if (option == "--remove" || option == "-r")

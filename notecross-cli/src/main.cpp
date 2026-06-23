@@ -1,6 +1,8 @@
 #include "./helpers/extras.hpp"
 #include "notecrosscli.hpp"
 #include <iostream>
+#include <taskManager.hpp>
+#include <log.hpp>
 
 // ARGUMENT ORDER
 // INDEX 	| 	data
@@ -23,10 +25,12 @@ int main(int argc, char* argv[])
 
     if (option == "--add" || option == "-a")
     {
+		NCShared::LogFileMessage("Recieved add request");
         std::string taskDue = "";
 
         if (argc < 3)
         {
+			NCShared::LogFileMessage("Not enough arguments given for add request, stopping...");
             std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
             return 0;
         }
@@ -35,7 +39,9 @@ int main(int argc, char* argv[])
             taskDue = argv[3];
         }
         std::string taskData = argv[2];
-        NCCLI::AddTask(taskData, taskDue);
+
+		NCShared::LogFileMessage("Data given to shared module: Task Data: " + taskData);
+		std::cout << NCShared::TaskAdd(taskData, taskDue);
     }
     else if (option == "--update" || option == "-u")
     {

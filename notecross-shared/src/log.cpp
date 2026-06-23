@@ -22,7 +22,7 @@ void LogConsoleError(std::string_view error)
 
 void LogFileMessage(std::string_view message)
 {
-    std::ofstream logFile(LogFilePath());
+    std::ofstream logFile(LogFilePath(), std::ios::app);
 
     logFile << FormatMessge(message, false);
 
@@ -31,7 +31,7 @@ void LogFileMessage(std::string_view message)
 
 void LogFileError(std::string_view error)
 {
-    std::ofstream logFile(LogFilePath());
+    std::ofstream logFile(LogFilePath(), std::ios::app);
 
     logFile << FormatMessge(error, false);
 

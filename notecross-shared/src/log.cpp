@@ -17,7 +17,7 @@ void LogConsoleMessage(std::string_view message)
 
 void LogConsoleError(std::string_view error)
 {
-	std::cout << FormatMessge(error, true);
+	std::cerr << FormatMessge(error, true);
 }
 
 void LogFileMessage(std::string_view message)

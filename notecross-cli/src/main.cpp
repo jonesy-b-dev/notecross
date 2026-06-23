@@ -1,6 +1,7 @@
 #include "./helpers/extras.hpp"
-#include "notecrosscli.hpp"
 #include <iostream>
+#include <taskManager.hpp>
+#include <log.hpp>
 
 // ARGUMENT ORDER
 // INDEX 	| 	data
@@ -23,56 +24,74 @@ int main(int argc, char* argv[])
 
     if (option == "--add" || option == "-a")
     {
+		NCShared::LogFileMessage("Recieved add request");
         std::string taskDue = "";
 
         if (argc < 3)
         {
+			NCShared::LogFileError("Not enough arguments given for add request, stopping...");
             std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
             return 0;
         }
         if (argc == 4) // Due date was given
         {
             taskDue = argv[3];
+			NCShared::LogFileMessage("Due date was given to new task, value: " + taskDue);
         }
         std::string taskData = argv[2];
-        NCCLI::AddTask(taskData, taskDue);
+
+		NCShared::LogFileMessage("Data given to shared module: Task Data: " + taskData + " Task Due: " + taskDue);
+		std::cout << NCShared::TaskAdd(taskData, taskDue);
     }
     else if (option == "--update" || option == "-u")
     {
+		NCShared::LogFileMessage("Recieved update request");
         if (argc < 4)
         {
+			NCShared::LogFileError("Not enough arguments given for add request, stopping...");
             std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
             return 0;
         }
         if (!isInteger(argv[2]))
         {
-            std::cerr << "Invalid id, " << argv[2] << "is not an interger\n";
+			NCShared::LogFileError("Invalid id, " + std::string(argv[2]) + " is not an integer!");
+            std::cerr << "Invalid id, " << argv[2] << " is not an interger\n";
             return 0;
         }
 
-        int id = std::stoi(argv[2]);
+        int taskId = std::stoi(argv[2]);
         std::string taskData = argv[3];
-        NCCLI::UpdateTask(id, taskData);
+
+		NCShared::LogFileMessage("Data given to shared module: Task Data: " + taskData + " Task Id: " + std::to_string(taskId));
+		//std::cout << NCShared::TaskUpdate(taskData, taskDue);
     }
     else if (option == "--remove" || option == "-r")
     {
+		NCShared::LogFileMessage("Recieved remove request");
         if (argc < 2)
         {
+			NCShared::LogFileMessage("Not enough arguments given for remove request, stopping...");
             std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
             return 0;
         }
         if (!isInteger(argv[2]))
         {
+			NCShared::LogFileError("Invalid id, " + std::string(argv[2]) + " is not an integer!");
             std::cerr << "Invalid id, id is not an interger\n";
             return 0;
         }
 
         int id = std::stoi(argv[2]);
-        NCCLI::RemoveTask(id);
+
+		NCShared::LogFileMessage("Removing task with id: " + std::to_string(id));
+		std::cout << NCShared::TaskRemove(id);
     }
     else if (option == "--list" || option == "-l")
     {
-        NCCLI::ListTask();
+		NCShared::LogFileMessage("Recieved list request");
+
+		NCShared::LogFileMessage("Listing current tasks");
+		std::cout << NCShared::TaskGetAllFormatted();
     }
     else if (option == "--sync" || option == "-s")
     {
@@ -80,6 +99,8 @@ int main(int argc, char* argv[])
     }
     else if (option == "--help" || option == "-h")
     {
+		NCShared::LogFileMessage("Recieved help request");
+
         std::cout << "--Notecross help--\n\n"
                      "--add / -a {newTaskName} {newTaskDue}\n"
                      "\tAdd a new task using the AddTask function\n\n"

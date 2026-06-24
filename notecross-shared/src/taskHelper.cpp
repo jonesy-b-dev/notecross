@@ -1,5 +1,4 @@
 #include "include/taskHelper.hpp"
-#include "json.hpp"
 #include "include/log.hpp"
 #include <chrono>
 #include <ctime>
@@ -47,7 +46,7 @@ int CreateTaskFile()
     return 1;
 }
 
-std::ifstream OpenTaskFileRead()
+json OpenTaskFileRead()
 {
     if (!std::filesystem::exists(TaskFilePath(true)))
         if (!CreateTaskFile())
@@ -60,7 +59,14 @@ std::ifstream OpenTaskFileRead()
     if (!tasksFile.is_open())
         NCShared::LogFileError("Failed to open tasks.json file: " + std::string(TaskFilePath(true)));
 
-    return tasksFile;
+    if (!tasksFile.is_open())
+        return "Failed to openfile, check /tmp/notecross.log for more details";
+
+    json taskData = json::parse(tasksFile);
+    tasksFile.close();
+    NCShared::LogFileMessage("Parsed and closed tasksFile");
+
+	return taskData;
 }
 
 std::ofstream OpenTaskFileWrite()

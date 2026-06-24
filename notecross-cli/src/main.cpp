@@ -46,6 +46,8 @@ int main(int argc, char* argv[])
     else if (option == "--update" || option == "-u")
     {
 		NCShared::LogFileMessage("Recieved update request");
+        std::string taskDue = "";
+
         if (argc < 4)
         {
 			NCShared::LogFileError("Not enough arguments given for add request, stopping...");
@@ -58,12 +60,17 @@ int main(int argc, char* argv[])
             std::cerr << "Invalid id, " << argv[2] << " is not an interger\n";
             return 0;
         }
+        if (argc == 5) // Due date was given
+        {
+            taskDue = argv[4];
+			NCShared::LogFileMessage("Due date was given to new task, value: " + taskDue);
+        }
 
         int taskId = std::stoi(argv[2]);
         std::string taskData = argv[3];
 
 		NCShared::LogFileMessage("Data given to shared module: Task Data: " + taskData + " Task Id: " + std::to_string(taskId));
-		//std::cout << NCShared::TaskUpdate(taskData, taskDue);
+		std::cout << NCShared::TaskUpdate(taskId, taskData, taskDue);
     }
     else if (option == "--remove" || option == "-r")
     {

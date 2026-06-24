@@ -1,7 +1,7 @@
 #include "Task.h"
+#include "include/log.hpp"
 #include "include/taskHelper.hpp"
 #include "json.hpp"
-#include "include/log.hpp"
 #include <algorithm>
 #include <fstream>
 // #include <glib-2.0/glib.h">
@@ -148,7 +148,81 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
     return "Added new task.";
 }
 
-std::string TaskUpdate(int id, Task updatedTask);
+std::string TaskUpdate(int id, std::string updatedTask, std::string newTaskDue)
+{
+    NCShared::LogFileMessage("Update task with id: " + std::to_string(id));
+
+    std::ifstream tasksFile = OpenTaskFileRead();
+    if (!tasksFile.is_open())
+        return "Failed to open file for read, check /tmp/notecross.log for more details";
+
+    json taskData = json::parse(tasksFile);
+    tasksFile.close();
+    NCShared::LogFileMessage("Parsed and closed tasksFile");
+
+    if (!taskData.contains("tasks"))
+    {
+        NCShared::LogFileMessage("No 'tasks' array found in file, aborting...");
+        return "No tasks found, did you already add a task?";
+    }
+
+    bool found = false;
+    for (auto& task : taskData["tasks"])
+    {
+        if (task.contains("id") && task["id"] == id)
+        {
+            found = true;
+
+            // Update the task text
+            task["task"] = updatedTask;
+
+            // Update the due date - handle "No due set" vs a numeric timestamp
+            if (!newTaskDue.empty())
+			{
+                int unixDueDate = TaskDueToUnixTime(newTaskDue);
+
+                if (unixDueDate == -1)
+                {
+                    return "Failed to parse due date, check `/tmp/notecross.log for more info and "
+                           "check "
+                           "GitHub for correct format";
+                }
+                task["due date"] = unixDueDate;
+            }
+            break;
+        }
+    }
+    if (!found)
+    {
+        NCShared::LogFileMessage("No task found with id: " + std::to_string(id));
+        return "Task with id " + std::to_string(id) + " not found";
+    }
+
+    std::ofstream tasksFileWrite = OpenTaskFileWrite();
+    if (!tasksFileWrite.is_open())
+        return "Failed to openfile, check /tmp/notecross.log for more details";
+    tasksFileWrite << taskData.dump(4);
+
+    tasksFile.close();
+
+    NCShared::LogFileMessage("Updated task with id: " + std::to_string(id) +
+                             " updated task: " + updatedTask);
+
+    // NOTIFICATION
+    std::string notificationText = "Task Upded with id: " + std::to_string(id);
+    notify_init(notificationText.c_str());
+    NotifyNotification* n = notify_notification_new(updatedTask.c_str(), " ", 0);
+    notify_notification_set_timeout(n, 5000); // 5 seconds
+
+    if (!notify_notification_show(n, 0))
+    {
+        NCShared::LogFileError("Failed to show notification");
+        return "Updated new task but failed to show notification";
+    }
+
+    return "Updated task with id: " + std::to_string(id);
+}
+
 std::string TaskRemove(int id)
 {
     std::ifstream tasksFile = OpenTaskFileRead();

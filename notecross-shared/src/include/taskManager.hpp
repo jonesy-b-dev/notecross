@@ -1,5 +1,4 @@
 #pragma once
-#include "../Task.h"
 #include <string>
 
 namespace NCShared

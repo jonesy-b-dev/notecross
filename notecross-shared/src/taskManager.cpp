@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <fstream>
 // #include <glib-2.0/glib.h">
-#include <iterator>
 #include <libnotify/notify.h>
 
 #define TASKDIR "~/.notecross/"
@@ -13,17 +12,6 @@ using json = nlohmann::json;
 
 namespace NCShared
 {
-std::string TaskGetAll()
-{
-    std::ifstream tasksFile = OpenTaskFileRead();
-    if (!tasksFile.is_open())
-        return "Failed to openfile, check /tmp/notecross.log for more details";
-
-    // Read entire file into a string
-    std::string result =
-        std::string(std::istreambuf_iterator<char>(tasksFile), std::istreambuf_iterator<char>());
-    return result;
-}
 
 std::string TaskGetAllFormatted()
 {

@@ -3,7 +3,6 @@
 
 namespace NCShared
 {
-std::string TaskGetAll();
 std::string TaskGetAllFormatted();
 std::string TaskAdd(std::string newTask, std::string taskDue);
 std::string TaskUpdate(int id, std::string updatedTask, std::string newTaskDue);

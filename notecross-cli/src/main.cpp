@@ -97,26 +97,28 @@ int main(int argc, char* argv[])
         NCShared::LogFileMessage("Recieved help request");
 
         std::cout << "--Notecross help--\n\n"
-                     "--add / -a {newTaskName} {newTaskDue}\n"
-                     "\tAdd a new task using the AddTask function\n\n"
+					"Notecross is a tool to help you manage to do tasks and sync them between devices\n\n"
+					"These are the availaible cli options:\n"
+                     "--add / -a {Task Name} {Task Due}\n"
+                     "\tAdd a new task to your list\n\n"
 
-                     "--update / -u {taskId} {newTaskName} {newTaskDue}\n"
-                     "\tUpdate task using the TaskUpdate function\n\n"
+                     "--update / -u {Task ID} {New Task Name} {New Task Due}\n"
+                     "\tUpdate an existing task using the task ID\n\n"
 
-                     "--remove / -r {taskId}\n"
-                     "\tRemove task using the TaskRemove function\n\n"
+                     "--remove / -r {Task ID}\n"
+                     "\tRemove task using the task ID\n\n"
 
-                     "--done / -d {taskId}\n"
-                     "\tMark task as done using the TaskDone function\n\n"
+                     "--done / -d {Task ID}\n"
+                     "\tMark task as done (not removing it) using the task ID\n\n"
 
                      "--list / -l\n"
-                     "\tList all the tasks that are open using the TaskGetAll() function\n\n"
+                     "\tList all the tasks that are open right now\n\n"
 
                      "--sync / -s\n"
-                     "\tManually sync the task file using the TaskSync option\n\n"
+                     "\tManually sync the task file with your other devices\n\n"
 
                      "--help / -h\n"
-                     "\tList all CLI options\n";
+                     "\tProvide this message\n";
     }
     else
     {

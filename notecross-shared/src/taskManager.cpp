@@ -6,8 +6,6 @@
 // #include <glib-2.0/glib.h">
 #include <libnotify/notify.h>
 
-#define TASKDIR "~/.notecross/"
-
 using json = nlohmann::json;
 
 namespace NCShared

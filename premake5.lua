@@ -64,8 +64,13 @@ files {
 }
 
 includedirs {
+	"notecross-shared/src/include",
 	"shared/"
 }
+
+filter "system:linux"
+libdirs { "../notecross‑shared/bin/%{cfg.buildcfg}" }
+links { "notecross-shared" }
 -- Link the daemon binary so the CLI can start it (optional)
 -- links { "notecross-daemon" }
 

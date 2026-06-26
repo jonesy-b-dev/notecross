@@ -81,12 +81,19 @@ int main(int argc, char* argv[])
         NCShared::LogFileMessage("Removing task with id: " + std::to_string(taskId));
         std::cout << NCShared::TaskRemove(taskId);
     }
+    else if (option == "--listall" || option == "-la")
+    {
+        NCShared::LogFileMessage("Recieved listall request");
+
+        NCShared::LogFileMessage("Listing all tasks");
+        std::cout << NCShared::TaskGetAllFormatted(true);
+    }
     else if (option == "--list" || option == "-l")
     {
         NCShared::LogFileMessage("Recieved list request");
 
         NCShared::LogFileMessage("Listing current tasks");
-        std::cout << NCShared::TaskGetAllFormatted();
+        std::cout << NCShared::TaskGetAllFormatted(false);
     }
     else if (option == "--done" || option == "-d")
 	{
@@ -128,6 +135,9 @@ int main(int argc, char* argv[])
 
                      "--done / -d {Task ID}\n"
                      "\tMark task as done (not removing it) using the task ID\n\n"
+
+                     "--listall / -la\n"
+                     "\tList all the tasks including completed ones\n\n"
 
                      "--list / -l\n"
                      "\tList all the tasks that are open right now\n\n"

@@ -11,12 +11,29 @@ using json = nlohmann::json;
 
 namespace NCShared
 {
-std::string TaskGetAllFormatted()
+std::string TaskGetAllFormatted(bool includeCompletedTasks)
 {
     json taskData = OpenTaskFileRead();
 
     if (!taskData.contains("tasks") || !taskData["tasks"].is_array() || taskData["tasks"].empty())
         return "No tasks found.";
+
+    if (!includeCompletedTasks)
+    {
+        json filtered = json::array();
+
+        if (!taskData.contains("tasks"))
+            return filtered;
+
+        for (const auto& task : taskData["tasks"])
+        {
+            if (task.contains("completed") && task["completed"] == false)
+            {
+                filtered.push_back(task);
+            }
+        }
+		taskData["tasks"] = filtered;
+    }
 
     // Find longest description
     size_t maxDesc = 0;
@@ -52,7 +69,7 @@ std::string TaskGetAllFormatted()
 
     NCShared::LogFileMessage("Listed all tasks.");
 
-   return output.str();
+    return output.str();
 }
 
 std::string TaskAdd(std::string newTask, std::string taskDue)
@@ -79,7 +96,7 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
         newTaskJson = {{"id", nextId},
                        {"task", newTask},
                        {"due date", "No due set"},
-					   {"completed", false},
+                       {"completed", false},
                        {"creation date", currentUnixTime}};
     }
     else
@@ -95,7 +112,7 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
         newTaskJson = {{"id", nextId},
                        {"task", newTask},
                        {"due date", unixDueDate},
-					   {"completed", false},
+                       {"completed", false},
                        {"creation date", currentUnixTime}};
     }
 
@@ -146,7 +163,7 @@ std::string TaskUpdate(int id, std::string updatedTask, std::string newTaskDue)
 
             // Update the due date - handle "No due set" vs a numeric timestamp
             if (!newTaskDue.empty())
-			{
+            {
                 int unixDueDate = TaskDueToUnixTime(newTaskDue);
 
                 if (unixDueDate == -1)

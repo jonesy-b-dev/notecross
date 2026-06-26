@@ -29,23 +29,30 @@ The daemon should now be running in the background, daemon logs can be found in 
 ## How To use
 `notecross {option}`
 ### Notecross CLI options
-**--add / -a "{newTaskName}" {newTaskDue}**
-	Add a new task using the AddTask function
+**--add / -a {Task Name} {Task Due}**
+	Add a new task to your list
 
-**--update / -u {taskId} "{newTaskName}" {newTaskDue}:**
-	Update task using the TaskUpdate function
+**--update / -u {Task ID} {New Task Name} {New Task Due}**
+	Update an existing task using the task ID
 
-**--remove /-r {taskId}:**
-	Remove task using the TaskRemove function
+**--remove / -r {Task ID}**
+	Remove task using the task ID
 
-**--done /-d {taskId}:**
-	Remove task using the TaskRemove function
+**--done / -d {Task ID}**
+	Mark task as done (not removing it) using the task ID
 
-**--list /-l:**
-	List all the tasks that are open using the TaskGetAll() function
+**--listall / -la**
+	List all the tasks including completed ones
 
-**--sync / -s:**
-	Manually sync the task file using the TaskSync option
+**--list / -l**
+	List all the tasks that are open right now
+
+**--sync / -s**
+	Manually sync the task file with your other devices
+
+**--help / -h**
+	Provide this message
+
 
 #### Date format
 Task due date needs to be formatted as following:

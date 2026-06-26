@@ -14,6 +14,9 @@ namespace NCShared
 std::string TaskGetAllFormatted(bool includeCompletedTasks)
 {
     json taskData = OpenTaskFileRead();
+	if (taskData == NULL){
+        return "Failed to openfile, check /tmp/notecross.log for more details";
+	}
 
     if (!taskData.contains("tasks") || !taskData["tasks"].is_array() || taskData["tasks"].empty())
         return "No tasks found.";
@@ -77,6 +80,9 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
     NCShared::LogFileMessage("Adding new task....");
 
     json taskData = OpenTaskFileRead();
+	if (taskData == NULL){
+        return "Failed to openfile, check /tmp/notecross.log for more details";
+	}
 
     int nextId = 0;
     nextId =
@@ -144,6 +150,9 @@ std::string TaskUpdate(int id, std::string updatedTask, std::string newTaskDue)
     NCShared::LogFileMessage("Update task with id: " + std::to_string(id));
 
     json taskData = OpenTaskFileRead();
+	if (taskData == NULL){
+        return "Failed to openfile, check /tmp/notecross.log for more details";
+	}
 
     if (!taskData.contains("tasks"))
     {
@@ -209,6 +218,9 @@ std::string TaskUpdate(int id, std::string updatedTask, std::string newTaskDue)
 std::string TaskRemove(int id)
 {
     json taskData = OpenTaskFileRead();
+	if (taskData == NULL){
+        return "Failed to openfile, check /tmp/notecross.log for more details";
+	}
 
     json& tasks = taskData["tasks"];
     auto newEnd =

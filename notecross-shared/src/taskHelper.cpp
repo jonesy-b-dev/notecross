@@ -52,21 +52,22 @@ json OpenTaskFileRead()
         if (!CreateTaskFile())
         {
             NCShared::LogFileError("Failed to create task file!");
-            return {};
+            return NULL;
         }
 
     std::ifstream tasksFile(TaskFilePath(true));
     if (!tasksFile.is_open())
-        NCShared::LogFileError("Failed to open tasks.json file: " + std::string(TaskFilePath(true)));
-
-    if (!tasksFile.is_open())
-        return "Failed to openfile, check /tmp/notecross.log for more details";
+    {
+        NCShared::LogFileError("Failed to open tasks.json file: " +
+                               std::string(TaskFilePath(true)));
+		return NULL;
+    }
 
     json taskData = json::parse(tasksFile);
     tasksFile.close();
     NCShared::LogFileMessage("Parsed and closed tasksFile");
 
-	return taskData;
+    return taskData;
 }
 
 std::ofstream OpenTaskFileWrite()
@@ -81,7 +82,8 @@ std::ofstream OpenTaskFileWrite()
 
     tasksFile.open(TaskFilePath(true));
     if (!tasksFile)
-        NCShared::LogFileError("Failed to open tasks.json file: " + std::string(TaskFilePath(true)));
+        NCShared::LogFileError("Failed to open tasks.json file: " +
+                               std::string(TaskFilePath(true)));
 
     return tasksFile;
 }

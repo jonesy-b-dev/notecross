@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
         }
 
         int taskId = ParseId(argv[2]);
-		if (taskId == -1)
-			return 0;
+        if (taskId == -1)
+            return 0;
         std::string taskData = argv[3];
 
         NCShared::LogFileMessage("Data given to shared module: Task Data: " + taskData +
@@ -74,9 +74,9 @@ int main(int argc, char* argv[])
             std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
             return 0;
         }
-		int taskId = ParseId(argv[2]);
-		if (taskId == -1)
-			return 0;
+        int taskId = ParseId(argv[2]);
+        if (taskId == -1)
+            return 0;
 
         NCShared::LogFileMessage("Removing task with id: " + std::to_string(taskId));
         std::cout << NCShared::TaskRemove(taskId);
@@ -96,8 +96,8 @@ int main(int argc, char* argv[])
         std::cout << NCShared::TaskGetAllFormatted(false);
     }
     else if (option == "--done" || option == "-d")
-	{
-		NCShared::LogFileMessage("Recieved done request");
+    {
+        NCShared::LogFileMessage("Recieved done request");
 
         if (argc < 3)
         {
@@ -105,13 +105,13 @@ int main(int argc, char* argv[])
             std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
             return 0;
         }
-		int taskId = ParseId(argv[2]);
-		if (taskId == -1)
-			return 0;
+        int taskId = ParseId(argv[2]);
+        if (taskId == -1)
+            return 0;
 
         NCShared::LogFileMessage("Finishing task with id: " + std::to_string(taskId));
         std::cout << NCShared::TaskComplete(taskId);
-	}
+    }
 
     else if (option == "--sync" || option == "-s")
     {
@@ -121,9 +121,7 @@ int main(int argc, char* argv[])
     {
         NCShared::LogFileMessage("Recieved help request");
 
-        std::cout << "--Notecross help--\n\n"
-					"Notecross is a tool to help you manage to do tasks and sync them between devices\n\n"
-					"These are the availaible cli options:\n"
+        std::cout << "These are the availaible cli options:\n"
                      "--add / -a {Task Name} {Task Due}\n"
                      "\tAdd a new task to your list\n\n"
 
@@ -146,7 +144,22 @@ int main(int argc, char* argv[])
                      "\tManually sync the task file with your other devices\n\n"
 
                      "--help / -h\n"
-                     "\tProvide this message\n";
+                     "\tProvide this message\n\n"
+
+                     "Date format\n"
+                     "Task due date needs to be formatted as following:\n\n"
+
+                     "`{amount}{size}`\n\n"
+
+                     "Examples\n"
+                     "\t* 15d (exactly 15 days from moment of execution)\n"
+                     "\t* 3h (3 hours)\n\n"
+
+                     "Supported size formats\n"
+                     "\t* m (minutes)\n"
+                     "\t* h (hours)\n"
+                     "\t* d (days)\n\n"
+                     "Report bugs to: https://github.com/jonesy-b-dev/notecross";
     }
     else
     {

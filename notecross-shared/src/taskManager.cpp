@@ -1,3 +1,4 @@
+#include "include/taskManager.hpp"
 #include "include/log.hpp"
 #include "include/taskHelper.hpp"
 #include "json.hpp"
@@ -78,6 +79,7 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
         newTaskJson = {{"id", nextId},
                        {"task", newTask},
                        {"due date", "No due set"},
+					   {"completed", false},
                        {"creation date", currentUnixTime}};
     }
     else
@@ -93,6 +95,7 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
         newTaskJson = {{"id", nextId},
                        {"task", newTask},
                        {"due date", unixDueDate},
+					   {"completed", false},
                        {"creation date", currentUnixTime}};
     }
 
@@ -172,7 +175,7 @@ std::string TaskUpdate(int id, std::string updatedTask, std::string newTaskDue)
                              " updated task: " + updatedTask);
 
     // NOTIFICATION
-    std::string notificationText = "Task Upded with id: " + std::to_string(id);
+    std::string notificationText = "Task Updated with id: " + std::to_string(id);
     notify_init(notificationText.c_str());
     NotifyNotification* n = notify_notification_new(updatedTask.c_str(), " ", 0);
     notify_notification_set_timeout(n, 5000); // 5 seconds
@@ -217,6 +220,57 @@ std::string TaskRemove(int id)
         return "Added new task but failed to show notification";
     }
     return "Removed task with id: " + std::to_string(id);
+}
+std::string TaskComplete(int id)
+{
+    NCShared::LogFileMessage("Completing task with id: " + std::to_string(id));
+
+    json taskData = OpenTaskFileRead();
+
+    if (!taskData.contains("tasks"))
+    {
+        NCShared::LogFileMessage("No 'tasks' array found in file, aborting...");
+        return "No tasks found, did you already add a task?";
+    }
+
+    bool found = false;
+    for (auto& task : taskData["tasks"])
+    {
+        if (task.contains("id") && task["id"] == id)
+        {
+            found = true;
+
+            // Update the task completion setting
+            task["completed"] = true;
+
+            break;
+        }
+    }
+    if (!found)
+    {
+        NCShared::LogFileMessage("No task found with id: " + std::to_string(id));
+        return "Task with id " + std::to_string(id) + " not found";
+    }
+
+    std::ofstream tasksFileWrite = OpenTaskFileWrite();
+    if (!tasksFileWrite.is_open())
+        return "Failed to openfile, check /tmp/notecross.log for more details";
+    tasksFileWrite << taskData.dump(4);
+
+    NCShared::LogFileMessage("Completed task with id: " + std::to_string(id));
+
+    // NOTIFICATION
+    notify_init("Task Completed");
+    std::string message = "Completed task with id: " + std::to_string(id);
+    NotifyNotification* n = notify_notification_new(message.c_str(), " ", 0);
+    notify_notification_set_timeout(n, 5000);
+
+    if (!notify_notification_show(n, 0))
+    {
+        NCShared::LogFileError("Failed to show notification");
+        return "Added new task but failed to show notification";
+    }
+    return "Updated task with id: " + std::to_string(id);
 }
 std::string TaskSync();
 } // namespace NCShared

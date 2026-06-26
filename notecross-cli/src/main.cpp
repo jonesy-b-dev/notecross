@@ -88,6 +88,24 @@ int main(int argc, char* argv[])
         NCShared::LogFileMessage("Listing current tasks");
         std::cout << NCShared::TaskGetAllFormatted();
     }
+    else if (option == "--done" || option == "-d")
+	{
+		NCShared::LogFileMessage("Recieved done request");
+
+        if (argc < 3)
+        {
+            NCShared::LogFileError("Not enough arguments given for done request, stopping...");
+            std::cerr << "Not enough arguments given, check `notecross --help` for more details.\n";
+            return 0;
+        }
+		int taskId = ParseId(argv[2]);
+		if (taskId == -1)
+			return 0;
+
+        NCShared::LogFileMessage("Finishing task with id: " + std::to_string(taskId));
+        std::cout << NCShared::TaskComplete(taskId);
+	}
+
     else if (option == "--sync" || option == "-s")
     {
         // NCCLI::AddTask();

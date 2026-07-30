@@ -60,6 +60,7 @@ int main(int argc, char* argv[])
         if (taskId == -1)
             return 0;
         std::string taskData = argv[3];
+		taskDue = argv[4];
 
         NCShared::LogFileMessage("Data given to shared module: Task Data: " + taskData +
                                  " Task Id: " + std::to_string(taskId));

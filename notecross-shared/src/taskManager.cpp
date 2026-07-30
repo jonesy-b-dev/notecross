@@ -1,72 +1,52 @@
 #include "include/taskManager.hpp"
 #include "include/log.hpp"
+#include "include/task.hpp"
 #include "include/taskHelper.hpp"
-#include "json.hpp"
 #include <algorithm>
-#include <fstream>
 // #include <glib-2.0/glib.h">
+#include <chrono>
 #include <libnotify/notify.h>
 
-using json = nlohmann::json;
 
 namespace NCShared
 {
 std::string TaskGetAllFormatted(bool includeCompletedTasks)
 {
-    json taskData = OpenTaskFileRead();
-	if (taskData == NULL){
-        return "Failed to openfile, check /tmp/notecross.log for more details";
-	}
+	std::vector<Task> tasks = NCShared::GetAllTasks();
 
-    if (!taskData.contains("tasks") || !taskData["tasks"].is_array() || taskData["tasks"].empty())
+    if (tasks.empty())
         return "No tasks found.";
 
     if (!includeCompletedTasks)
     {
-        json filtered = json::array();
+		std::vector<Task> filtered;
 
-        if (!taskData.contains("tasks"))
-            return filtered;
-
-        for (const auto& task : taskData["tasks"])
+        for (const Task& task : tasks)
         {
-            if (task.contains("completed") && task["completed"] == false)
-            {
+            if (task.completed == false)
                 filtered.push_back(task);
-            }
         }
-		taskData["tasks"] = filtered;
+        tasks = filtered;
     }
 
     // Find longest description
     size_t maxDesc = 0;
-    for (const auto& task : taskData["tasks"])
-    {
-        std::string desc = task.value("task", "<no description>");
-        maxDesc = std::max(maxDesc, desc.size());
-    }
+    for (const Task& task : tasks)
+        maxDesc = std::max(maxDesc, task.description.size());
 
     std::ostringstream output;
 
     output << "== Current tasks ==\n";
-    for (const auto& task : taskData["tasks"])
+    for (const Task& task : tasks)
     {
-        int id = task.value("id", 0);
-        std::string desc = task.value("task", "<no description>");
-        std::string due = "";
+        int id = task.id;
+        std::string desc = task.description;
+        std::string due = task.dueDate == 0 ? "No due set" : NCShared::TaskDueToDate(task.dueDate);
 
-        const auto& dueField = task["due date"];
+		// Otherwise it shifts at id 10, will happen at 100 to, but dont care now
+	    size_t descWidth = id < 10 ? maxDesc + 1 : maxDesc;
 
-        if (dueField.is_number())
-        {
-            due = NCShared::TaskDueToDate(dueField.get<int>());
-        }
-        else if (dueField.is_string())
-        {
-            due = dueField.get<std::string>(); // or parse/convert it
-        }
-
-        output << "  " << id << ". " << std::left << std::setw(maxDesc) << desc << " | Due: " << due
+        output << "  " << id << ". " << std::left << std::setw(descWidth) << desc << " | Due: " << due
                << "\n";
     }
 
@@ -79,55 +59,36 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
 {
     NCShared::LogFileMessage("Adding new task....");
 
-    json taskData = OpenTaskFileRead();
-	if (taskData == NULL){
-        return "Failed to openfile, check /tmp/notecross.log for more details";
-	}
+    std::vector<Task> tasks = NCShared::GetAllTasks();
 
-    int nextId = 0;
-    nextId =
-        !taskData.contains("tasks") || !taskData["tasks"].is_array() || taskData["tasks"].empty()
-            ? 1
-            : taskData["tasks"].back().value("id", 0) + 1;
-    NCShared::LogFileMessage("Next id is:" + std::to_string(nextId));
+    Task newTaskObj;
 
-    json newTaskJson;
+    newTaskObj.id = tasks.empty() ? 0 : tasks.back().id + 1;
+    newTaskObj.description = newTask;
 
     std::chrono::time_point now = std::chrono::system_clock::now();
     std::chrono::duration duration = now.time_since_epoch();
     auto currentUnixTime = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 
+    newTaskObj.creationDate = currentUnixTime;
+
     if (taskDue.empty())
-    {
-        newTaskJson = {{"id", nextId},
-                       {"task", newTask},
-                       {"due date", "No due set"},
-                       {"completed", false},
-                       {"creation date", currentUnixTime}};
-    }
+        newTaskObj.dueDate = 0;
     else
     {
         int unixDueDate = TaskDueToUnixTime(taskDue);
 
         if (unixDueDate == -1)
-        {
             return "Failed to parse due date, check `/tmp/notecross.log for more info and check "
                    "GitHub for correct format";
-        }
 
-        newTaskJson = {{"id", nextId},
-                       {"task", newTask},
-                       {"due date", unixDueDate},
-                       {"completed", false},
-                       {"creation date", currentUnixTime}};
+        newTaskObj.dueDate = unixDueDate;
     }
+	newTaskObj.completed = false;
 
-    taskData["tasks"].push_back(newTaskJson);
+	tasks.push_back(newTaskObj);
 
-    std::ofstream tasksFileWrite = OpenTaskFileWrite();
-    if (!tasksFileWrite.is_open())
-        return "Failed to openfile, check /tmp/notecross.log for more details";
-    tasksFileWrite << taskData.dump(4);
+	NCShared::WriteTasksToFile(tasks);
 
     NCShared::LogFileMessage("Added new task: " + newTask);
 
@@ -149,28 +110,25 @@ std::string TaskUpdate(int id, std::string updatedTask, std::string newTaskDue)
 {
     NCShared::LogFileMessage("Update task with id: " + std::to_string(id));
 
-    json taskData = OpenTaskFileRead();
-	if (taskData == NULL){
-        return "Failed to openfile, check /tmp/notecross.log for more details";
-	}
+    std::vector<Task> tasks = NCShared::GetAllTasks();
 
-    if (!taskData.contains("tasks"))
-    {
+    if (tasks.empty())
+	{
         NCShared::LogFileMessage("No 'tasks' array found in file, aborting...");
         return "No tasks found, did you already add a task?";
-    }
+	}
+
+    Task updatedTaskObj;
 
     bool found = false;
-    for (auto& task : taskData["tasks"])
+    for (Task& task : tasks)
     {
-        if (task.contains("id") && task["id"] == id)
+        if (task.id == id)
         {
             found = true;
 
-            // Update the task text
-            task["task"] = updatedTask;
+            task.description = updatedTask;
 
-            // Update the due date - handle "No due set" vs a numeric timestamp
             if (!newTaskDue.empty())
             {
                 int unixDueDate = TaskDueToUnixTime(newTaskDue);
@@ -181,7 +139,7 @@ std::string TaskUpdate(int id, std::string updatedTask, std::string newTaskDue)
                            "check "
                            "GitHub for correct format";
                 }
-                task["due date"] = unixDueDate;
+                task.dueDate = unixDueDate;
             }
             break;
         }
@@ -192,10 +150,7 @@ std::string TaskUpdate(int id, std::string updatedTask, std::string newTaskDue)
         return "Task with id " + std::to_string(id) + " not found";
     }
 
-    std::ofstream tasksFileWrite = OpenTaskFileWrite();
-    if (!tasksFileWrite.is_open())
-        return "Failed to openfile, check /tmp/notecross.log for more details";
-    tasksFileWrite << taskData.dump(4);
+	NCShared::WriteTasksToFile(tasks);
 
     NCShared::LogFileMessage("Updated task with id: " + std::to_string(id) +
                              " updated task: " + updatedTask);
@@ -217,23 +172,25 @@ std::string TaskUpdate(int id, std::string updatedTask, std::string newTaskDue)
 
 std::string TaskRemove(int id)
 {
-    json taskData = OpenTaskFileRead();
-	if (taskData == NULL){
-        return "Failed to openfile, check /tmp/notecross.log for more details";
+    std::vector<Task> tasks = NCShared::GetAllTasks();
+
+    if (tasks.empty())
+	{
+        NCShared::LogFileMessage("No 'tasks' array found in file, aborting...");
+        return "No tasks found, did you already add a task?";
 	}
 
-    json& tasks = taskData["tasks"];
     auto newEnd =
         std::remove_if(tasks.begin(),
                        tasks.end(),
-                       [id](const json& task) { return task.contains("id") && task["id"] == id; });
+                       [&id](const Task& task) { return task.id == id; });
+
+	if (newEnd == tasks.end())
+	    return "No task found with that id.";
 
     tasks.erase(newEnd, tasks.end());
 
-    std::ofstream tasksFileWrite = OpenTaskFileWrite();
-    if (!tasksFileWrite.is_open())
-        return "Failed to openfile, check /tmp/notecross.log for more details";
-    tasksFileWrite << taskData.dump(4);
+	NCShared::WriteTasksToFile(tasks);
 
     NCShared::LogFileMessage("Removed task with id: " + std::to_string(id));
 
@@ -254,23 +211,21 @@ std::string TaskComplete(int id)
 {
     NCShared::LogFileMessage("Completing task with id: " + std::to_string(id));
 
-    json taskData = OpenTaskFileRead();
+    std::vector<Task> tasks = NCShared::GetAllTasks();
 
-    if (!taskData.contains("tasks"))
-    {
+    if (tasks.empty())
+	{
         NCShared::LogFileMessage("No 'tasks' array found in file, aborting...");
         return "No tasks found, did you already add a task?";
-    }
-
+	}
     bool found = false;
-    for (auto& task : taskData["tasks"])
+    for (Task& task : tasks)
     {
-        if (task.contains("id") && task["id"] == id)
+        if (task.id == id)
         {
             found = true;
 
-            // Update the task completion setting
-            task["completed"] = true;
+            task.completed = true;
 
             break;
         }
@@ -281,10 +236,7 @@ std::string TaskComplete(int id)
         return "Task with id " + std::to_string(id) + " not found";
     }
 
-    std::ofstream tasksFileWrite = OpenTaskFileWrite();
-    if (!tasksFileWrite.is_open())
-        return "Failed to openfile, check /tmp/notecross.log for more details";
-    tasksFileWrite << taskData.dump(4);
+	NCShared::WriteTasksToFile(tasks);
 
     NCShared::LogFileMessage("Completed task with id: " + std::to_string(id));
 
@@ -299,7 +251,7 @@ std::string TaskComplete(int id)
         NCShared::LogFileError("Failed to show notification");
         return "Added new task but failed to show notification";
     }
-    return "Updated task with id: " + std::to_string(id);
+    return "Completed task with id: " + std::to_string(id);
 }
 std::string TaskSync();
 } // namespace NCShared

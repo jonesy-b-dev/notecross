@@ -1,13 +1,15 @@
 #pragma once
+#include <vector>
 #include <filesystem>
-#include "../json.hpp"
+#include "task.hpp"
 
 namespace NCShared
 {
-std::filesystem::path TaskFilePath(bool withFile);
 int CreateTaskFile();
-nlohmann::json OpenTaskFileRead();
-std::ofstream OpenTaskFileWrite();
 int TaskDueToUnixTime(std::string taskDue);
 std::string TaskDueToDate(int taskDue);
+
+// API
+std::vector<Task> GetAllTasks();
+bool WriteTasksToFile(std::vector<Task>& incommingTasks);
 } // namespace NCShared

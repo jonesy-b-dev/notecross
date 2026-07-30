@@ -1,7 +1,9 @@
 #include "include/taskHelper.hpp"
 #include "include/log.hpp"
-#include <chrono>
+#include "include/task.hpp"
+#include "json.hpp"
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 
 using json = nlohmann::json;
@@ -60,7 +62,7 @@ json OpenTaskFileRead()
     {
         NCShared::LogFileError("Failed to open tasks.json file: " +
                                std::string(TaskFilePath(true)));
-		return NULL;
+        return NULL;
     }
 
     json taskData = json::parse(tasksFile);
@@ -167,5 +169,75 @@ std::string TaskDueToDate(int taskDue)
     if (!result.empty() && result.back() == ' ')
         result.pop_back();
     return result;
+}
+
+std::vector<Task> GetAllTasks()
+{
+    std::vector<Task> tasks;
+    json taskData = OpenTaskFileRead();
+    if (taskData == NULL)
+    {
+        NCShared::LogFileError("Failed to open task file for reading in `GetAllTasks()`");
+        return tasks;
+    }
+
+    for (const auto& task : taskData["tasks"])
+    {
+        Task currentTask;
+        currentTask.id = task.value("id", 0);
+        currentTask.description = task.value("task", "<no description>");
+
+        const auto& dueField = task["due date"];
+        if (dueField.is_number())
+        {
+            currentTask.dueDate = task.value("due date", 0);
+        }
+        else if (dueField.is_string())
+        {
+            currentTask.dueDate = 0;
+        }
+
+        currentTask.creationDate = task.value("creation date", 0);
+        currentTask.completed = task.value("completed", false);
+
+        tasks.push_back(currentTask);
+    }
+    return tasks;
+}
+
+bool WriteTasksToFile(std::vector<Task>& incommingTasks)
+{
+    json taskArray = json::array();
+
+    for (const Task& task : incommingTasks)
+    {
+        json taskJson;
+        taskJson["id"] = task.id;
+        taskJson["task"] = task.description;
+        taskJson["creation date"] = task.creationDate;
+        taskJson["completed"] = task.completed;
+
+        if (task.dueDate == 0)
+        {
+            taskJson["due date"] = "No due date set";
+        }
+        else
+        {
+            taskJson["due date"] = task.dueDate;
+        }
+
+        taskArray.push_back(taskJson);
+    }
+
+    json result;
+    result["tasks"] = taskArray;
+
+    std::ofstream tasksFileWrite = OpenTaskFileWrite();
+    if (!tasksFileWrite.is_open())
+        return false;
+
+    tasksFileWrite << result.dump(4);
+
+    return true;
 }
 } // namespace NCShared

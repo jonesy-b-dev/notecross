@@ -41,12 +41,13 @@ files {
 }
 includedirs {
 	"shared/",
-	"notecross‑shared/src/include"
+	"notecross-shared/src/include"
 }
 
 filter "system:linux"
-libdirs { "../notecross‑shared/bin/%{cfg.buildcfg}" }
+libdirs { "../notecross-shared/bin/%{cfg.buildcfg}" }
 links { "notecross-shared" }
+
 buildoptions { "`pkg-config --cflags libnotify`" }
 linkoptions { "`pkg-config --libs libnotify`" }
 
@@ -69,17 +70,20 @@ includedirs {
 }
 
 filter "system:linux"
-libdirs { "../notecross‑shared/bin/%{cfg.buildcfg}" }
+libdirs { "../notecross-shared/bin/%{cfg.buildcfg}" }
 links { "notecross-shared" }
 -- Link the daemon binary so the CLI can start it (optional)
 -- links { "notecross-daemon" }
 
+filter "system:linux"
+buildoptions { "`pkg-config --cflags libnotify`" }
+linkoptions { "`pkg-config --libs libnotify`" }
 
 --------------------------------------------------------------------
 -- notecross-shared
 project "notecross-shared"
 targetname "notecrossShared"
-kind "SharedLib"
+kind "StaticLib"
 location "notecross-shared"
 common_cpp_settings()
 

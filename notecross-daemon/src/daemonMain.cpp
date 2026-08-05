@@ -1,5 +1,4 @@
 #include "daemonizer.hpp"
-#include "socketHandler.hpp"
 #include <iostream>
 #include <unistd.h>
 
@@ -14,6 +13,4 @@ int main()
         std::cerr << "Failed to daemonize process with pid: " << getpid() << std::endl;
         exit(1);
     }
-    int socketFileDiscriptor = NCDaemon::OpenSocket();
-    NCDaemon::HandleConnections(socketFileDiscriptor);
 }

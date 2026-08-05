@@ -1,5 +1,5 @@
 #include "socketHandler.hpp"
-#include "log.hpp"
+#include <log.hpp>
 #include <cstring>
 #include <stdexcept>
 #define SOCK_PATH "/tmp/NoteCrossDaemonSocket"
@@ -16,25 +16,25 @@ int OpenSocket()
     struct sockaddr_un serverSockAddr{};
 
     int socketFileDiscriptor = socket(AF_UNIX, SOCK_STREAM, 0);
-    NCDaemon::LogMessage("Notecross daemon socket file discriptor: " +
+    NCShared::LogFileMessage("Notecross daemon socket file discriptor: " +
                          std::to_string(socketFileDiscriptor));
     if (socketFileDiscriptor == -1)
     {
-        NCDaemon::LogError("Failed to open daemon server socket!");
+        NCShared::LogFileError("Failed to open daemon server socket!");
         close(socketFileDiscriptor);
         exit(1);
     }
 
     if (strlen(SOCK_PATH) > sizeof(serverSockAddr.sun_path) - 1)
     {
-        LogError(std::string("Server socket path too long: ") + SOCK_PATH);
+        NCShared::LogFileError(std::string("Server socket path too long: ") + SOCK_PATH);
         close(socketFileDiscriptor);
         exit(1);
     }
 
     if (unlink(SOCK_PATH) == -1 && errno != ENOENT)
     {
-        LogError(std::string("Failed to remove old socket file: ") + strerror(errno));
+        NCShared::LogFileError(std::string("Failed to remove old socket file: ") + strerror(errno));
         close(socketFileDiscriptor);
         exit(1);
     }
@@ -45,16 +45,16 @@ int OpenSocket()
     socklen_t len = offsetof(struct sockaddr_un, sun_path) + strlen(serverSockAddr.sun_path) + 1;
     if (bind(socketFileDiscriptor, (struct sockaddr*)&serverSockAddr, len) == -1)
     {
-        LogError("Bind failed: " + std::string(strerror(errno)) + "\n");
+        NCShared::LogFileError("Bind failed: " + std::string(strerror(errno)) + "\n");
         close(socketFileDiscriptor);
         exit(1);
     }
 
-    LogMessage("Opened socket at: " + std::string(SOCK_PATH));
+    NCShared::LogFileMessage("Opened socket at: " + std::string(SOCK_PATH));
 
     if (listen(socketFileDiscriptor, 5) == -1)
     {
-        LogError("Failed to start listening!");
+        NCShared::LogFileError("Failed to start listening!");
         close(socketFileDiscriptor);
         exit(1);
     }
@@ -65,10 +65,10 @@ void HandleConnections(int socketFileDiscriptor)
 {
     while (1)
     {
-        LogMessage("Listening for connections..");
+        NCShared::LogFileMessage("Listening for connections..");
         // Blocks until a connection is active
         int client = accept(socketFileDiscriptor, NULL, NULL);
-        LogError("Accepted socket, file discriptor = " + std::to_string(client));
+        NCShared::LogFileError("Accepted socket, file discriptor = " + std::to_string(client));
 
         char buffer[128];
         int n = read(client, buffer, sizeof(buffer) - 1);
@@ -99,23 +99,23 @@ void HandleConnections(int socketFileDiscriptor)
             }
         }
 
-        NCDaemon::LogMessage(option + " | " + data + " - " + due);
+        NCShared::LogFileMessage(option + " | " + data + " - " + due);
 
         if (strcmp(option.c_str(), "ADD") == 0)
         {
-            LogMessage("Recieved ADD request");
+            NCShared::LogFileMessage("Recieved ADD request");
             std::string result = NCShared::TaskAdd(data, due);
             write(client, result.c_str(), result.size());
         }
         if (strcmp(option.c_str(), "LIST") == 0)
         {
-            LogMessage("Recieved LIST request");
-            std::string result = NCShared::TaskGetAllFormatted();
+            NCShared::LogFileMessage("Recieved LIST request");
+            std::string result = NCShared::TaskGetAllFormatted(false);
             write(client, result.c_str(), result.size());
         }
         if (strcmp(option.c_str(), "REMOVE") == 0)
         {
-            NCDaemon::LogMessage("Remove data: " + data);
+            NCShared::LogFileMessage("Remove data: " + data);
             int id;
             try
             {
@@ -123,14 +123,14 @@ void HandleConnections(int socketFileDiscriptor)
             }
             catch (const std::invalid_argument& e)
             {
-                NCDaemon::LogError("Invalid input: not a number");
+                NCShared::LogFileError("Invalid input: not a number");
                 std::string result = "Failed to convert number to int, got std::invalid_argument";
                 write(client, result.c_str(), result.size());
                 continue;
             }
             catch (const std::out_of_range& e)
-            {
-                NCDaemon::LogError("Number out of range for int");
+			{
+                NCShared::LogFileError("Number out of range for int");
                 std::string result = "Failed to convert number to int, got std::out_of_range";
                 write(client, result.c_str(), result.size());
                 continue;

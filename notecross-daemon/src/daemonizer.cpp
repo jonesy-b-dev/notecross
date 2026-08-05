@@ -1,4 +1,5 @@
 #include "log.hpp"
+#include <log.hpp>
 #include <csignal>
 #include <cstring>
 #include <fcntl.h>
@@ -110,7 +111,7 @@ pid_t Daemonize()
     signal(SIGTERM, SignalHandler); /* Catch kill signal */
 
     std::cout << "\n\n";
-    NCDaemon::LogMessage("Daemonization complete");
+	NCShared::LogFileMessage("Daemonization complete");
 
     return secondChild;
 }

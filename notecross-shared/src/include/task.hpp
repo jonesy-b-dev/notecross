@@ -8,7 +8,7 @@ struct Task
     int id;
     std::string description;
     int creationDate;
-    int dueDate;
+    long dueDate;
     bool completed;
 };
 } // namespace NCShared

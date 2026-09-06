@@ -6,7 +6,7 @@
 namespace NCShared
 {
 int CreateTaskFile();
-int TaskDueToUnixTime(std::string taskDue);
+long TaskDueToUnixTime(std::string taskDue);
 std::string TaskDueToDate(int taskDue);
 
 // API

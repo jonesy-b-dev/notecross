@@ -76,7 +76,7 @@ std::string TaskAdd(std::string newTask, std::string taskDue)
         newTaskObj.dueDate = 0;
     else
     {
-        int unixDueDate = TaskDueToUnixTime(taskDue);
+        long unixDueDate = TaskDueToUnixTime(taskDue);
 
         if (unixDueDate == -1)
             return "Failed to parse due date, check `/tmp/notecross.log for more info and check "
@@ -131,7 +131,7 @@ std::string TaskUpdate(int id, std::string updatedTask, std::string newTaskDue)
 
             if (!newTaskDue.empty())
             {
-                int unixDueDate = TaskDueToUnixTime(newTaskDue);
+                long unixDueDate = TaskDueToUnixTime(newTaskDue);
 
                 if (unixDueDate == -1)
                 {

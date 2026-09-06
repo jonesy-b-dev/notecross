@@ -90,7 +90,7 @@ std::ofstream OpenTaskFileWrite()
     return tasksFile;
 }
 
-int TaskDueToUnixTime(std::string taskDue)
+long TaskDueToUnixTime(std::string taskDue)
 {
     size_t sizeCharPos = taskDue.find_first_not_of("0123456789");
     if (sizeCharPos == std::string::npos)
@@ -120,7 +120,7 @@ int TaskDueToUnixTime(std::string taskDue)
 
     std::chrono::time_point now = std::chrono::system_clock::now();
     std::chrono::duration duration = now.time_since_epoch();
-    auto currentUnixTime = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+    long currentUnixTime = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 
     NCShared::LogFileMessage("Current Unix timestamp: " + std::to_string(currentUnixTime));
 

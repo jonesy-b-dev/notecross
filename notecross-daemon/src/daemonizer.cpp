@@ -1,4 +1,3 @@
-#include "log.hpp"
 #include <log.hpp>
 #include <csignal>
 #include <cstring>

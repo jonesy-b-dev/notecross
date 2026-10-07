@@ -8,14 +8,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.notecross.R
 
-// Set of Material typography styles to start with
-val SquadaOne = FontFamily (
+val SquadaOne = FontFamily(
     Font(
-        resId = R.font.squadaone_regular,
+        resId = R.font.squada_one_regular,
         weight = FontWeight.Normal
     )
 )
+
 val Typography = Typography(
+    titleLarge = TextStyle(
+        fontFamily = SquadaOne,
+        fontWeight = FontWeight.Normal,
+        fontSize = 50.sp
+    ),
+    titleMedium = TextStyle(
+        fontFamily = SquadaOne,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = SquadaOne,
+        fontWeight = FontWeight.Normal,
+        fontSize = 15.sp
+    ),
     bodyLarge = TextStyle(
         fontFamily = SquadaOne,
         fontWeight = FontWeight.Normal,

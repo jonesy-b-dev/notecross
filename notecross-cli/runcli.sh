@@ -4,7 +4,7 @@ premake5 --file=../premake5.lua gmake
 
 #make clean
 
-if ! bear -- make config=debug; then
+if ! bear -- make config=release; then
     echo "Compilation failed stopping...."
     exit 1
 fi

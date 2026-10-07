@@ -5,13 +5,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.example.notecross.components.AddTaskButton
 import com.example.notecross.components.TaskLayout
 import com.example.notecross.components.Title
@@ -23,24 +26,25 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NotecrossTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                )
-                {
+                Scaffold(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    floatingActionButton = {
+                        AddTaskButton(onClick = { addTask() })
+                    },
+                    floatingActionButtonPosition = FabPosition.Center
+                ) { innerPadding ->
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .consumeWindowInsets(innerPadding)
+                            .verticalScroll(rememberScrollState())
                     ) {
                         Title("Notecross")
-                        Column(
-                            modifier = Modifier
-                                .padding(30.dp)
-                        ) {
-                            TaskLayout()
-                            TaskLayout()
+                        repeat(20) {
                             TaskLayout()
                         }
-                        AddTaskButton(onClick = { })
                     }
                 }
             }
